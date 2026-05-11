@@ -7,11 +7,22 @@ import { getScanInputShape, scanSiteInputShape } from "./types.js";
 
 const SERVER_INFO = {
   name: "agent-ready",
-  version: "0.1.0",
+  version: "0.1.1",
 } as const;
 
 export function createMcpServer(config: Config): McpServer {
   const server = new McpServer(SERVER_INFO);
+
+  // Annotations are mirrored from manifest.json. Glama and Lobehub probe the
+  // runtime (tools/list response), not the manifest, so these must be passed
+  // explicitly to registerTool — see scholar-sidekick-mcp v0.5.x for the
+  // same gotcha.
+  const READ_ONLY_OPEN_WORLD = {
+    readOnlyHint: true,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: true,
+  } as const;
 
   server.registerTool(
     "scan_site",
@@ -20,6 +31,7 @@ export function createMcpServer(config: Config): McpServer {
       description:
         "Runs the agent-ready.dev scanner against a URL and returns structured results: Vercel score, llmstxt.org score, and per-check findings with remediation hints. Scans may take up to ~60s; if the local poll deadline elapses, the tool returns the scan id and asks you to poll with get_scan.",
       inputSchema: scanSiteInputShape,
+      annotations: READ_ONLY_OPEN_WORLD,
     },
     async (args) => {
       try {
@@ -37,6 +49,7 @@ export function createMcpServer(config: Config): McpServer {
       description:
         "Fetches a completed or in-progress scan by its id. Only scans owned by the authenticated API key's user are returned.",
       inputSchema: getScanInputShape,
+      annotations: READ_ONLY_OPEN_WORLD,
     },
     async (args) => {
       try {

@@ -7,3 +7,6 @@ coverage/
 .env
 .env.*
 !.env.example
+agent-ready-mcp-*.tgz
+# .mcpb bundle is a release artefact attached to GitHub releases, not source
+agent-ready-mcp.mcpb
