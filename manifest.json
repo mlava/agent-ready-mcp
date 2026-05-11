@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "agent-ready-mcp",
   "display_name": "Agent Ready",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Scan any URL for AI agent readability against the Vercel Agent Readability Spec, the llmstxt.org standard, and agent-protocol manifests (MCP server cards, A2A, agents.json, agent-permissions.json, UCP, x402). 59 checks with per-check fix guidance.",
   "long_description": "Agent Ready MCP runs the agent-ready.dev scanner against any public URL and returns a structured agent-readability report: a 0–100 Vercel Agent Readability score, a 0–100 llms.txt sub-score, and per-check findings with concrete remediation hints. The scanner runs 59 checks across four spec families — 38 against the Vercel Agent Readability Spec (15 site-wide plus 23 per-page covering meta tags, JSON-LD, headings, markdown mirrors, content negotiation, code-block language tags, JS-rendering dependency), 10 against the llmstxt.org specification, and 11 against agent protocols (MCP Server Cards per SEP-1649 / RFC 9728, A2A Agent Cards on a2a.proto v1.0.0, Wildcard agents.json, agent-permissions.json, UCP, x402 Payment Required). Three discovery prompts wire end-to-end workflows: 'scan' (URL → summary), 'interpret_scan' (id → plain-English findings), 'remediation_plan' (id → prioritised fix-it doc). Pairs with a code-editing MCP tool to land the fixes the scanner surfaces. A Pro API key from agent-ready.dev is required (issue one from https://agent-ready.dev/dashboard/api-keys).",
   "author": {
@@ -151,6 +151,37 @@
     }
   ],
   "prompts_generated": false,
+  "resources": [
+    {
+      "name": "methodology",
+      "uri": "agent-ready://methodology",
+      "title": "Scoring methodology",
+      "description": "How Agent Ready computes the 0–100 readability score and the llms.txt sub-score. Covers the 59 checks across four categories, rating bands, weighting, and JS-rendering handling.",
+      "mimeType": "text/markdown"
+    },
+    {
+      "name": "checks",
+      "uri": "agent-ready://checks",
+      "title": "Check registry",
+      "description": "Reference table of all 59 checks Agent Ready runs, grouped by category (site, page, llms.txt, protocol). Each row pairs the stable check ID (e.g. P11, S15, L9, C3) with its human-readable name.",
+      "mimeType": "text/markdown"
+    },
+    {
+      "name": "llms-txt",
+      "uri": "agent-ready://llms.txt",
+      "title": "Agent Ready's own llms.txt",
+      "description": "The /llms.txt file agent-ready.dev publishes for AI agents discovering it as a tool. Useful as a worked example for the llms.txt validator and for clients introspecting Agent Ready's surface.",
+      "mimeType": "text/markdown"
+    },
+    {
+      "name": "specs",
+      "uri": "agent-ready://specs",
+      "title": "Specifications Agent Ready validates against",
+      "description": "Canonical URLs and check-ID mappings for the seven specifications Agent Ready implements: Vercel Agent Readability Spec, llmstxt.org, MCP Server Cards (SEP-1649 / RFC 9728), A2A Agent Cards (a2a.proto v1.0.0), Wildcard agents.json, agent-permissions.json, UCP (RFC 8414), and x402 Payment Required.",
+      "mimeType": "text/markdown"
+    }
+  ],
+  "resources_generated": false,
   "user_config": {
     "api_key": {
       "type": "string",

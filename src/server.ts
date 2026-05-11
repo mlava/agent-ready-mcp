@@ -1,13 +1,14 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { Config } from "./client.js";
 import { registerPrompts } from "./prompts.js";
+import { registerResources } from "./resources.js";
 import { getScanById } from "./tools/getScan.js";
 import { scanSite, ToolError } from "./tools/scanSite.js";
 import { getScanInputShape, scanSiteInputShape } from "./types.js";
 
 const SERVER_INFO = {
   name: "agent-ready",
-  version: "0.1.2",
+  version: "0.2.0",
 } as const;
 
 export function createMcpServer(config: Config): McpServer {
@@ -61,6 +62,7 @@ export function createMcpServer(config: Config): McpServer {
   );
 
   registerPrompts(server);
+  registerResources(server);
 
   return server;
 }

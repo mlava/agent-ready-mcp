@@ -26,6 +26,18 @@ interface RegisteredPrompts {
   _registeredPrompts: Record<string, RegisteredCallback>;
 }
 
+interface RegisteredResources {
+  _registeredResources: Record<
+    string,
+    {
+      metadata: { mimeType: string };
+      readCallback: () => Promise<{
+        contents: Array<{ uri: string; mimeType: string; text: string }>;
+      }>;
+    }
+  >;
+}
+
 describe("createMcpServer", () => {
   it("registers scan_site and get_scan tools", () => {
     const server = createMcpServer(TEST_CONFIG);
@@ -59,6 +71,48 @@ describe("createMcpServer", () => {
       .messages[0]!.content.text;
     expect(text).toContain("get_scan");
     expect(text).toContain("abc123");
+  });
+
+  it("registers four discovery resources", () => {
+    const server = createMcpServer(TEST_CONFIG);
+    const resources = (server as unknown as RegisteredResources)
+      ._registeredResources;
+    expect(Object.keys(resources).sort()).toEqual([
+      "agent-ready://checks",
+      "agent-ready://llms.txt",
+      "agent-ready://methodology",
+      "agent-ready://specs",
+    ]);
+  });
+
+  it("methodology resource returns markdown content", async () => {
+    const server = createMcpServer(TEST_CONFIG);
+    const resources = (server as unknown as RegisteredResources)
+      ._registeredResources;
+    const result =
+      await resources["agent-ready://methodology"]!.readCallback();
+    expect(result.contents).toHaveLength(1);
+    const c = result.contents[0]!;
+    expect(c.uri).toBe("agent-ready://methodology");
+    expect(c.mimeType).toBe("text/markdown");
+    expect(c.text).toContain("59 checks");
+    expect(c.text).toContain("Rating bands");
+  });
+
+  it("checks resource enumerates all 59 checks across four tables", async () => {
+    const server = createMcpServer(TEST_CONFIG);
+    const resources = (server as unknown as RegisteredResources)
+      ._registeredResources;
+    const text = (await resources["agent-ready://checks"]!.readCallback())
+      .contents[0]!.text;
+    expect(text).toContain("Site checks (15)");
+    expect(text).toContain("Page checks (23)");
+    expect(text).toContain("llms.txt checks (10)");
+    expect(text).toContain("Protocol checks (11)");
+    expect(text).toContain("| S1 |");
+    expect(text).toContain("| P11 |");
+    expect(text).toContain("| L1 |");
+    expect(text).toContain("| C1 |");
   });
 
   it("remediation_plan prompt threads optional focus", () => {
