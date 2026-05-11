@@ -7,7 +7,7 @@ import { getScanInputShape, scanSiteInputShape } from "./types.js";
 
 const SERVER_INFO = {
   name: "agent-ready",
-  version: "0.1.1",
+  version: "0.1.2",
 } as const;
 
 export function createMcpServer(config: Config): McpServer {
