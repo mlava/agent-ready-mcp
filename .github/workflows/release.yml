@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write # npm provenance + mcp-publisher GitHub OIDC
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          registry-url: "https://registry.npmjs.org"
+
+      - run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build dist/mcp-server.mjs
+        run: npm run build
+
+      - name: Publish to npm
+        # --provenance attaches a Sigstore attestation tying the tarball to
+        # this workflow run, this commit, and this tag. Surfaces as the
+        # green "Provenance" badge on npmjs.com.
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Install mcp-publisher
+        # Pinned to v1 line; bump when the registry asks. Asset name pattern
+        # is mcp-publisher_<version>_linux_amd64.tar.gz; gh CLI is preinstalled
+        # on the runner and pulls the latest matching asset.
+        run: |
+          gh release download --repo modelcontextprotocol/registry \
+            --pattern "mcp-publisher_*_linux_amd64.tar.gz" \
+            --output mcp-publisher.tar.gz
+          tar -xzf mcp-publisher.tar.gz
+          chmod +x mcp-publisher
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Authenticate to MCP registry via GitHub OIDC
+        # No secret needed — the github-oidc method exchanges the workflow's
+        # OIDC token for a registry session bound to io.github.<owner>/...
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish to MCP registry
+        run: ./mcp-publisher publish
