@@ -41,13 +41,14 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Install mcp-publisher
-        # Pinned to v1 line; bump when the registry asks. Asset name pattern
-        # is mcp-publisher_<version>_linux_amd64.tar.gz; gh CLI is preinstalled
-        # on the runner and pulls the latest matching asset.
+        # Asset name on modelcontextprotocol/registry is exactly
+        # mcp-publisher_linux_amd64.tar.gz (no version in the middle).
+        # gh CLI is preinstalled on the runner and pulls the latest release.
         run: |
           gh release download --repo modelcontextprotocol/registry \
-            --pattern "mcp-publisher_*_linux_amd64.tar.gz" \
-            --output mcp-publisher.tar.gz
+            --pattern "mcp-publisher_linux_amd64.tar.gz" \
+            --output mcp-publisher.tar.gz \
+            --clobber
           tar -xzf mcp-publisher.tar.gz
           chmod +x mcp-publisher
         env:
