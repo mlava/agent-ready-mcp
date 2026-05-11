@@ -1,0 +1,133 @@
+// Minimal REST client for the agent-ready.dev API. The MCP package is a thin
+// stdio→HTTPS wrapper: tool handlers call into this client, which sends
+// Bearer-authenticated requests to the hosted REST endpoints.
+
+export interface Config {
+  baseUrl: string;
+  apiKey: string | null;
+  scanTimeoutMs: number;
+  getTimeoutMs: number;
+}
+
+const DEFAULT_BASE_URL = "https://agent-ready.dev";
+const DEFAULT_SCAN_TIMEOUT_MS = 60_000;
+const DEFAULT_GET_TIMEOUT_MS = 5_000;
+
+export function createConfig(env: NodeJS.ProcessEnv = process.env): Config {
+  const rawBase = env.AGENT_READY_API_URL ?? DEFAULT_BASE_URL;
+  // Strip any trailing slash so we can append /api/v1/... cleanly.
+  const baseUrl = rawBase.replace(/\/+$/, "");
+  const apiKey = (env.AGENT_READY_API_KEY?.trim() ?? "") || null;
+
+  const parsedScanTimeout = Number(env.AGENT_READY_SCAN_TIMEOUT_MS);
+  const scanTimeoutMs = Number.isFinite(parsedScanTimeout) && parsedScanTimeout > 0
+    ? parsedScanTimeout
+    : DEFAULT_SCAN_TIMEOUT_MS;
+  const parsedGetTimeout = Number(env.AGENT_READY_GET_TIMEOUT_MS);
+  const getTimeoutMs = Number.isFinite(parsedGetTimeout) && parsedGetTimeout > 0
+    ? parsedGetTimeout
+    : DEFAULT_GET_TIMEOUT_MS;
+
+  return { baseUrl, apiKey, scanTimeoutMs, getTimeoutMs };
+}
+
+export class ApiError extends Error {
+  constructor(
+    public readonly code: string,
+    message: string,
+    public readonly status: number | null = null,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
+interface FetchOptions {
+  method: "GET" | "POST";
+  path: string;
+  body?: unknown;
+  timeoutMs: number;
+}
+
+async function call<T>(config: Config, opts: FetchOptions): Promise<T> {
+  if (!config.apiKey) {
+    throw new ApiError(
+      "missing_api_key",
+      "AGENT_READY_API_KEY is not set. Issue a Pro API key from https://agent-ready.dev/dashboard/api-keys and set it in your MCP client config.",
+    );
+  }
+
+  const url = `${config.baseUrl}${opts.path}`;
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${config.apiKey}`,
+    Accept: "application/json",
+  };
+  if (opts.body !== undefined) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: opts.method,
+      headers,
+      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+      signal: AbortSignal.timeout(opts.timeoutMs),
+    });
+  } catch (err) {
+    if (err instanceof Error && err.name === "TimeoutError") {
+      throw new ApiError(
+        "timeout",
+        `Request to ${opts.path} timed out after ${opts.timeoutMs}ms.`,
+      );
+    }
+    const message = err instanceof Error ? err.message : String(err);
+    throw new ApiError("network_error", `Network error calling ${opts.path}: ${message}`);
+  }
+
+  const text = await res.text();
+  let payload: unknown = null;
+  if (text.length > 0) {
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      // Non-JSON body — fall through with raw text in the error message
+      // (rare; agent-ready always responds with JSON, but networks lie).
+    }
+  }
+
+  if (!res.ok) {
+    const detail =
+      payload && typeof payload === "object" && "error" in payload
+        ? (payload as { error: { code?: string; message?: string } }).error
+        : null;
+    const code = detail?.code ?? `http_${res.status}`;
+    const message =
+      (detail?.message ?? text) || `HTTP ${res.status} from ${opts.path}`;
+    throw new ApiError(code, message, res.status);
+  }
+
+  return payload as T;
+}
+
+export interface ScanRequestBody {
+  url: string;
+  pageLimit?: number;
+}
+
+export async function postScan(config: Config, body: ScanRequestBody): Promise<unknown> {
+  return call(config, {
+    method: "POST",
+    path: "/api/v1/scans",
+    body,
+    timeoutMs: config.scanTimeoutMs,
+  });
+}
+
+export async function getScanFromApi(config: Config, id: string): Promise<unknown> {
+  return call(config, {
+    method: "GET",
+    path: `/api/v1/scans/${encodeURIComponent(id)}`,
+    timeoutMs: config.getTimeoutMs,
+  });
+}

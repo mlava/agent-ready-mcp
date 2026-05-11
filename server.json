@@ -1,0 +1,29 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.mlava/agent-ready-mcp",
+  "description": "Scan any URL for AI agent readability — Vercel Agent Readability Spec, llmstxt.org, and agent protocols (MCP, A2A, agents.json, agent-permissions, UCP, x402).",
+  "repository": {
+    "url": "https://github.com/mlava/agent-ready-mcp",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "agent-ready-mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "description": "Your Agent Ready Pro API key. Issue one at https://agent-ready.dev/dashboard/api-keys.",
+          "isRequired": true,
+          "format": "string",
+          "isSecret": true,
+          "name": "AGENT_READY_API_KEY"
+        }
+      ]
+    }
+  ]
+}

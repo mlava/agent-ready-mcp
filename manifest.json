@@ -1,0 +1,184 @@
+{
+  "manifest_version": "0.3",
+  "name": "agent-ready-mcp",
+  "display_name": "Agent Ready",
+  "version": "0.1.0",
+  "description": "Scan any URL for AI agent readability against the Vercel Agent Readability Spec, the llmstxt.org standard, and agent-protocol manifests (MCP server cards, A2A, agents.json, agent-permissions.json, UCP, x402). 59 checks with per-check fix guidance.",
+  "long_description": "Agent Ready MCP runs the agent-ready.dev scanner against any public URL and returns a structured agent-readability report: a 0–100 Vercel Agent Readability score, a 0–100 llms.txt sub-score, and per-check findings with concrete remediation hints. The scanner runs 59 checks across four spec families — 38 against the Vercel Agent Readability Spec (15 site-wide plus 23 per-page covering meta tags, JSON-LD, headings, markdown mirrors, content negotiation, code-block language tags, JS-rendering dependency), 10 against the llmstxt.org specification, and 11 against agent protocols (MCP Server Cards per SEP-1649 / RFC 9728, A2A Agent Cards on a2a.proto v1.0.0, Wildcard agents.json, agent-permissions.json, UCP, x402 Payment Required). Three discovery prompts wire end-to-end workflows: 'scan' (URL → summary), 'interpret_scan' (id → plain-English findings), 'remediation_plan' (id → prioritised fix-it doc). Pairs with a code-editing MCP tool to land the fixes the scanner surfaces. A Pro API key from agent-ready.dev is required (issue one from https://agent-ready.dev/dashboard/api-keys).",
+  "author": {
+    "name": "Agent Ready",
+    "url": "https://agent-ready.dev"
+  },
+  "homepage": "https://agent-ready.dev",
+  "documentation": "https://github.com/mlava/agent-ready-mcp#readme",
+  "support": "https://github.com/mlava/agent-ready-mcp/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mlava/agent-ready-mcp"
+  },
+  "license": "MIT",
+  "privacy_policies": [
+    "https://agent-ready.dev/privacy"
+  ],
+  "icon": "icon.png",
+  "keywords": [
+    "seo",
+    "ai-search",
+    "llms-txt",
+    "agents.md",
+    "agent-readability",
+    "scanner",
+    "validator",
+    "vercel-spec",
+    "mcp-server-card",
+    "a2a",
+    "agents-json",
+    "agent-permissions",
+    "ucp",
+    "x402",
+    "llmstxt",
+    "lighthouse-for-agents"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "dist/mcp-server.mjs",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/dist/mcp-server.mjs"],
+      "env": {
+        "AGENT_READY_API_KEY": "${user_config.api_key}",
+        "AGENT_READY_API_URL": "${user_config.api_url}",
+        "AGENT_READY_SCAN_TIMEOUT_MS": "${user_config.scan_timeout_ms}"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "scan_site",
+      "title": "Scan a site for AI agent readability",
+      "description": "Runs the agent-ready.dev scanner against a URL and returns structured results: a 0–100 Vercel agent-readability score, a 0–100 llms.txt sub-score, and per-check findings with `howToFix` strings. The 59 checks span four spec families — Vercel Agent Readability Spec (S1–S15 site-wide + P1–P23 per-page), llmstxt.org (L1–L10), and agent protocols (C1–C11 covering MCP, A2A, agents.json, agent-permissions.json, UCP, x402). Use when the user wants a fresh audit of a publicly-reachable URL. Accepts an optional `pageLimit` (1–2000, capped by plan: Free 25, Pro 250, Team 2000). The hosted REST endpoint returns a 202 placeholder immediately and runs the scan asynchronously; this tool polls every 2 seconds for up to 60 seconds and returns the full scan if it completes, otherwise it returns `{ id, status: 'running', pollUrl }` so the caller can poll later with get_scan. Read-only and idempotent — safe to retry. Requires AGENT_READY_API_KEY; without it the tool returns an isError configuration message. Rate limits: Pro 10 scans/minute and 200/day, Team 60/minute and 2000/day.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Fully-qualified URL to scan, including scheme (https://...). Private and reserved IP ranges are blocked at the network layer."
+          },
+          "pageLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2000,
+            "description": "Optional maximum number of pages to crawl from the root URL. Capped by your plan (Free 25, Pro 250, Team 2000)."
+          }
+        },
+        "required": ["url"]
+      },
+      "annotations": {
+        "title": "Scan a site for AI agent readability",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_scan",
+      "title": "Get a previous scan by id",
+      "description": "Fetches a completed or in-progress scan by its 10-character id. Returns the same scan object shape as scan_site when complete. Returns an isError `not_found` payload when the id is unknown or doesn't belong to the authenticated user's API key. Use after scan_site returns a `running` placeholder, or when the user explicitly references a previous scan by id. Read-only and idempotent — safe to retry. Read rate limit: 120/minute.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Scan id returned by an earlier scan_site call (10-character nanoid)."
+          }
+        },
+        "required": ["id"]
+      },
+      "annotations": {
+        "title": "Get a previous scan by id",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    }
+  ],
+  "tools_generated": false,
+  "prompts": [
+    {
+      "name": "scan",
+      "description": "Run a fresh agent-readability scan against a URL and summarise the most important findings.",
+      "arguments": [
+        {
+          "name": "url",
+          "description": "Fully-qualified URL to scan (https://...).",
+          "required": true
+        }
+      ],
+      "text": "Scan ${arguments.url} for AI agent readability and summarise the score, rating, and top failing checks."
+    },
+    {
+      "name": "interpret_scan",
+      "description": "Fetch a previous scan by id and translate the per-check findings into plain-English explanations.",
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Scan id returned by an earlier scan_site call.",
+          "required": true
+        }
+      ],
+      "text": "Fetch scan ${arguments.id} and explain its findings in plain English, grouped by category."
+    },
+    {
+      "name": "remediation_plan",
+      "description": "Fetch a scan by id and produce a prioritised, actionable remediation plan, optionally focused on SEO or agent-protocol fixes.",
+      "arguments": [
+        {
+          "name": "id",
+          "description": "Scan id returned by an earlier scan_site call.",
+          "required": true
+        },
+        {
+          "name": "focus",
+          "description": "Optional focus: 'seo' or 'agents'.",
+          "required": false
+        }
+      ],
+      "text": "Fetch scan ${arguments.id} and produce a prioritised remediation plan (focus: ${arguments.focus})."
+    }
+  ],
+  "prompts_generated": false,
+  "user_config": {
+    "api_key": {
+      "type": "string",
+      "title": "Agent Ready API Key",
+      "description": "Your Agent Ready Pro API key. Required — the server starts without one but every tool call returns a configuration message until a key is set. Issue a Pro API key at https://agent-ready.dev/dashboard/api-keys.",
+      "sensitive": true,
+      "required": false
+    },
+    "api_url": {
+      "type": "string",
+      "title": "API base URL (advanced)",
+      "description": "Override the Agent Ready API base URL. Leave blank unless you're pointing at a staging or self-hosted deployment.",
+      "default": "https://agent-ready.dev",
+      "required": false
+    },
+    "scan_timeout_ms": {
+      "type": "string",
+      "title": "Scan poll timeout (ms)",
+      "description": "How long scan_site polls the hosted API for completion before returning a running placeholder. Default 60000.",
+      "default": "60000",
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "node": ">=20.0.0"
+    }
+  }
+}
