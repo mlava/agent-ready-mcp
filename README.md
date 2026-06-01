@@ -1,6 +1,6 @@
 # agent-ready-mcp
 
-MCP server for [Agent Ready](https://agent-ready.dev) — scan any URL for AI agent readability against the [Vercel Agent Readability Spec](https://vercel.com/kb/guide/agent-readability-spec), the [llmstxt.org](https://llmstxt.org) standard, and agent-protocol manifests (MCP server cards, A2A, agents.json, agent-permissions.json, UCP, x402, NLWeb). 60 checks with per-check fix guidance.
+MCP server for [Agent Ready](https://agent-ready.dev) — scan any URL for AI agent readability against the [Vercel Agent Readability Spec](https://vercel.com/kb/guide/agent-readability-spec), the [llmstxt.org](https://llmstxt.org) standard, and agent-protocol manifests (MCP server cards, A2A, agents.json, agent-permissions.json, UCP, x402, NLWeb). 60 checks across four spec families — 38 against the Vercel spec (15 site-wide + 23 per-page), 10 against llmstxt.org, and 12 against agent-protocol manifests — each with per-check fix guidance.
 
 Hosted at `https://agent-ready.dev/api/v1/mcp` (Streamable HTTP); this package is a thin stdio wrapper around the same REST endpoints, distributed via npm for local MCP clients (Claude Desktop, Claude Code, Cursor, VS Code, Windsurf).
 
