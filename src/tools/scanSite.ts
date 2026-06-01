@@ -14,6 +14,7 @@ export class ToolError extends Error {
 interface ToolResult {
   [key: string]: unknown;
   content: Array<{ type: "text"; text: string }>;
+  structuredContent?: Record<string, unknown>;
 }
 
 interface ScanPlaceholder {
@@ -90,26 +91,27 @@ export async function scanSite(
     }
 
     if (last && (last as ScanResult).status && (last as ScanResult).status !== "running") {
-      // Terminal state — return the full payload.
-      return { content: [{ type: "text", text: JSON.stringify(last) }] };
+      // Terminal state — return the full payload as both text and structured
+      // content (validated against scanOutputShape by the SDK).
+      return {
+        content: [{ type: "text", text: JSON.stringify(last) }],
+        structuredContent: last as unknown as Record<string, unknown>,
+      };
     }
   }
 
   // Deadline hit while scan is still running. Return the placeholder so the
   // caller can poll later via get_scan.
+  const running = {
+    id: placeholder.id,
+    status: "running" as const,
+    url: input.url,
+    pollUrl: placeholder.pollUrl ?? `/api/v1/scans/${placeholder.id}`,
+    message:
+      "Scan still running after the local poll deadline. Call get_scan with this id to fetch the final result.",
+  };
   return {
-    content: [
-      {
-        type: "text",
-        text: JSON.stringify({
-          id: placeholder.id,
-          status: "running",
-          url: input.url,
-          pollUrl: placeholder.pollUrl ?? `/api/v1/scans/${placeholder.id}`,
-          message:
-            "Scan still running after the local poll deadline. Call get_scan with this id to fetch the final result.",
-        }),
-      },
-    ],
+    content: [{ type: "text", text: JSON.stringify(running) }],
+    structuredContent: running,
   };
 }

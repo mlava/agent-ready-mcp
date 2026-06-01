@@ -6,6 +6,7 @@ import type { AskInput } from "../types.js";
 interface ToolResult {
   [key: string]: unknown;
   content: Array<{ type: "text"; text: string }>;
+  structuredContent?: Record<string, unknown>;
 }
 
 // NLWeb `ask` — natural-language query over agent-ready.dev's own content.
@@ -17,7 +18,13 @@ export async function askQuery(
 ): Promise<ToolResult> {
   try {
     const envelope = await postAsk(config, input);
-    return { content: [{ type: "text", text: JSON.stringify(envelope) }] };
+    return {
+      content: [{ type: "text", text: JSON.stringify(envelope) }],
+      structuredContent:
+        envelope && typeof envelope === "object"
+          ? (envelope as Record<string, unknown>)
+          : {},
+    };
   } catch (err) {
     if (err instanceof ApiError) {
       throw new ToolError(err.code, err.message);

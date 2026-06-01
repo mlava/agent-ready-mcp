@@ -5,6 +5,7 @@ import { registerResources } from "./resources.js";
 import { getScanById } from "./tools/getScan.js";
 import { scanSite, ToolError } from "./tools/scanSite.js";
 import { askQuery } from "./tools/ask.js";
+import { askOutputShape, scanOutputShape } from "./output.js";
 import {
   askInputShape,
   getScanInputShape,
@@ -13,7 +14,7 @@ import {
 
 const SERVER_INFO = {
   name: "agent-ready",
-  version: "0.3.0",
+  version: "0.4.0",
 } as const;
 
 export function createMcpServer(config: Config): McpServer {
@@ -37,6 +38,7 @@ export function createMcpServer(config: Config): McpServer {
       description:
         "Runs the agent-ready.dev scanner against a URL and returns structured results: Vercel score, llmstxt.org score, and per-check findings with remediation hints. Scans may take up to ~60s; if the local poll deadline elapses, the tool returns the scan id and asks you to poll with get_scan.",
       inputSchema: scanSiteInputShape,
+      outputSchema: scanOutputShape,
       annotations: READ_ONLY_OPEN_WORLD,
     },
     async (args) => {
@@ -55,6 +57,7 @@ export function createMcpServer(config: Config): McpServer {
       description:
         "Fetches a completed or in-progress scan by its id. Only scans owned by the authenticated API key's user are returned.",
       inputSchema: getScanInputShape,
+      outputSchema: scanOutputShape,
       annotations: READ_ONLY_OPEN_WORLD,
     },
     async (args) => {
@@ -73,6 +76,7 @@ export function createMcpServer(config: Config): McpServer {
       description:
         "Natural-language search (NLWeb /ask) over Agent Ready's own content — scoring methodology, the check registry, and the specs it validates. Public, no API key required. Returns Schema.org-typed result objects; optional itemType narrows to a corpus type and mode 'summarize' adds an extractive summary.",
       inputSchema: askInputShape,
+      outputSchema: askOutputShape,
       annotations: READ_ONLY_OPEN_WORLD,
     },
     async (args) => {
