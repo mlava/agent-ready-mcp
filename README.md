@@ -1,6 +1,6 @@
 # agent-ready-mcp
 
-MCP server for [Agent Ready](https://agent-ready.dev) — scan any URL for AI agent readability against the [Vercel Agent Readability Spec](https://vercel.com/kb/guide/agent-readability-spec), the [llmstxt.org](https://llmstxt.org) standard, and agent-protocol manifests (MCP server cards, A2A, agents.json, agent-permissions.json, UCP, x402). 59 checks with per-check fix guidance.
+MCP server for [Agent Ready](https://agent-ready.dev) — scan any URL for AI agent readability against the [Vercel Agent Readability Spec](https://vercel.com/kb/guide/agent-readability-spec), the [llmstxt.org](https://llmstxt.org) standard, and agent-protocol manifests (MCP server cards, A2A, agents.json, agent-permissions.json, UCP, x402, NLWeb). 60 checks with per-check fix guidance.
 
 Hosted at `https://agent-ready.dev/api/v1/mcp` (Streamable HTTP); this package is a thin stdio wrapper around the same REST endpoints, distributed via npm for local MCP clients (Claude Desktop, Claude Code, Cursor, VS Code, Windsurf).
 
@@ -8,6 +8,7 @@ Hosted at `https://agent-ready.dev/api/v1/mcp` (Streamable HTTP); this package i
 
 - **`scan_site`** — fresh agent-readability scan on any URL. Polls the hosted API up to 60s; returns the full scan or a `running` placeholder.
 - **`get_scan`** — fetch a previously-run scan by id.
+- **`ask`** — natural-language (NLWeb) search over Agent Ready's own methodology, checks, and specs. Public, no API key required; returns Schema.org-typed results.
 - **Three discovery prompts** — `scan`, `interpret_scan`, `remediation_plan`. End-to-end workflows from URL → score → fix-it plan.
 - **`SKILL.md`** — Claude Skill descriptor included under `skills/agent-ready/` for activation routing.
 
@@ -74,6 +75,7 @@ claude mcp add agent-ready \
 |---|---|---|
 | `scan_site` | `url` (string, required), `pageLimit` (number, optional, max 2000 — capped by your plan) | Scan object: Vercel score 0–100, llms.txt sub-score 0–100, per-check findings with `howToFix` strings. Returns `{ id, status: "running" }` placeholder if the scan exceeds the poll deadline. |
 | `get_scan` | `id` (string, scan id from a prior `scan_site` call) | Same scan object as `scan_site`, or `not_found` if the id is unknown or doesn't belong to the authenticated user. |
+| `ask` | `q` (string, required), `itemType` (optional corpus filter), `mode` (optional, `list` or `summarize`) | NLWeb `/ask` over Agent Ready's methodology, checks, and specs. Public — no API key required. Schema.org-typed result objects. |
 
 ## Prompts
 
@@ -113,7 +115,7 @@ If you'd rather use the hosted MCP server directly (Streamable HTTP transport, n
 
 ## Methodology
 
-The 59 checks, their weights, and the score formula are documented at [agent-ready.dev/methodology](https://agent-ready.dev/methodology). Both `manifest.json` and `server.json` in this repo conform to the relevant registry schemas (Glama Marketplace v0.3 and MCP registry 2025-12-11 respectively).
+The 60 checks, their weights, and the score formula are documented at [agent-ready.dev/methodology](https://agent-ready.dev/methodology). Both `manifest.json` and `server.json` in this repo conform to the relevant registry schemas (Glama Marketplace v0.3 and MCP registry 2025-12-11 respectively).
 
 ## Development
 

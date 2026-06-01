@@ -18,7 +18,7 @@ export function registerResources(server: McpServer): void {
     {
       title: "Scoring methodology",
       description:
-        "How Agent Ready computes the 0–100 readability score and the llms.txt sub-score. Covers the 59 checks across four categories, rating bands, weighting, and JS-rendering handling.",
+        "How Agent Ready computes the 0–100 readability score and the llms.txt sub-score. Covers the 60 checks across four categories, rating bands, weighting, and JS-rendering handling.",
       mimeType: "text/markdown",
     },
     async () => ({
@@ -38,7 +38,7 @@ export function registerResources(server: McpServer): void {
     {
       title: "Check registry",
       description:
-        "Reference table of all 59 checks Agent Ready runs, grouped by category (site, page, llms.txt, protocol). Each row pairs the stable check ID (e.g. P11, S15, L9, C3) with its human-readable name. Use this to identify a check by id when interpreting scan results.",
+        "Reference table of all 60 checks Agent Ready runs, grouped by category (site, page, llms.txt, protocol). Each row pairs the stable check ID (e.g. P11, S15, L9, C3) with its human-readable name. Use this to identify a check by id when interpreting scan results.",
       mimeType: "text/markdown",
     },
     async () => ({
@@ -78,7 +78,7 @@ export function registerResources(server: McpServer): void {
     {
       title: "Specifications Agent Ready validates against",
       description:
-        "Canonical URLs and check-ID mappings for the seven specifications Agent Ready implements: Vercel Agent Readability Spec, llmstxt.org, MCP Server Cards (SEP-1649 / RFC 9728), A2A Agent Cards (a2a.proto v1.0.0), Wildcard agents.json, agent-permissions.json, UCP (RFC 8414), and x402 Payment Required.",
+        "Canonical URLs and check-ID mappings for the specifications Agent Ready implements: Vercel Agent Readability Spec, llmstxt.org, MCP Server Cards (SEP-1649 / RFC 9728), A2A Agent Cards (a2a.proto v1.0.0), Wildcard agents.json, agent-permissions.json, UCP (RFC 8414), x402 Payment Required, and NLWeb.",
       mimeType: "text/markdown",
     },
     async () => ({

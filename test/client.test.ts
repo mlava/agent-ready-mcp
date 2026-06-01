@@ -3,6 +3,7 @@ import {
   ApiError,
   createConfig,
   getScanFromApi,
+  postAsk,
   postScan,
 } from "../src/client.js";
 
@@ -114,6 +115,56 @@ describe("REST client", () => {
       url: "https://example.com",
       pageLimit: 25,
     });
+  });
+
+  it("calls public POST /api/v1/ask without requiring an API key", async () => {
+    fetchMock.mockResolvedValueOnce(
+      makeResponse(200, {
+        _meta: { response_type: "answer", version: "0.1", mode: "list" },
+        results: [],
+      }),
+    );
+    const result = (await postAsk(
+      {
+        baseUrl: "https://agent-ready.dev",
+        apiKey: null,
+        scanTimeoutMs: 1000,
+        getTimeoutMs: 1000,
+      },
+      { q: "how is the score calculated" },
+    )) as { _meta: { response_type: string } };
+
+    expect(result._meta.response_type).toBe("answer");
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const [url, init] = fetchMock.mock.calls[0]!;
+    expect(url).toBe("https://agent-ready.dev/api/v1/ask");
+    expect(init?.method).toBe("POST");
+    const headers = init?.headers as Record<string, string>;
+    expect(headers.Authorization).toBeUndefined();
+    // JSON.stringify drops undefined fields, so the wire body is minimal.
+    expect(JSON.parse(init?.body as string)).toEqual({
+      query: { q: "how is the score calculated" },
+    });
+  });
+
+  it("passes the NLWeb failure envelope through on a 404", async () => {
+    fetchMock.mockResolvedValueOnce(
+      makeResponse(404, {
+        _meta: { response_type: "failure", version: "0.1", mode: "list" },
+        error: { code: "NO_RESULTS", message: "no match" },
+      }),
+    );
+    const result = (await postAsk(
+      {
+        baseUrl: "https://agent-ready.dev",
+        apiKey: null,
+        scanTimeoutMs: 1000,
+        getTimeoutMs: 1000,
+      },
+      { q: "zzz" },
+    )) as { _meta: { response_type: string }; error: { code: string } };
+    expect(result._meta.response_type).toBe("failure");
+    expect(result.error.code).toBe("NO_RESULTS");
   });
 
   it("URL-encodes scan ids on GET /api/v1/scans/{id}", async () => {

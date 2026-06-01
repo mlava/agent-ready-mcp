@@ -67,7 +67,7 @@ When grouping or filtering, use the check-id prefix:
 - **S1–S15** — site-wide checks (run once per scan): llms.txt, robots.txt, sitemap.xml, sitemap.md, AGENTS.md, HTTPS, OpenAPI
 - **P1–P23** — per-page checks (run on every fetched URL): HTTP semantics, metadata, JSON-LD, markdown mirrors, content negotiation, code-block language, JS-rendering dependency
 - **L1–L10** — llms.txt content checks (run when llms.txt exists): structure, link format, content-type, llms-full.txt companion
-- **C1–C11** — agent-protocol checks (run when the relevant `/.well-known` endpoint exists): MCP server cards, A2A agent cards, agents.json, agent-permissions.json, UCP, x402
+- **C1–C12** — agent-protocol checks (run when the relevant endpoint exists): MCP server cards, A2A agent cards, agents.json, agent-permissions.json, UCP, x402, NLWeb (`/ask`)
 
 C-series checks follow a discover-then-validate pattern: missing endpoints drop the check rather than failing it. Don't report a missing C-check as a problem unless the user explicitly wants that protocol.
 

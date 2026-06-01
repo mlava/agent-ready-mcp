@@ -31,5 +31,24 @@ export const getScanInputShape = {
     ),
 } as const;
 
+export const askInputShape = {
+  q: z
+    .string()
+    .min(1)
+    .max(2000)
+    .describe(
+      "Natural-language question about Agent Ready's scoring methodology, its check registry, or the specs it validates.",
+    ),
+  itemType: z
+    .enum(["methodology", "checks", "specs", "llms-txt", "check", "any"])
+    .optional()
+    .describe("Optional filter narrowing the search to one corpus type."),
+  mode: z
+    .enum(["list", "summarize"])
+    .optional()
+    .describe("'summarize' adds an extractive summary over the top results."),
+} as const;
+
 export type ScanSiteInput = z.infer<z.ZodObject<typeof scanSiteInputShape>>;
 export type GetScanInput = z.infer<z.ZodObject<typeof getScanInputShape>>;
+export type AskInput = z.infer<z.ZodObject<typeof askInputShape>>;

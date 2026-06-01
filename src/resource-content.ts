@@ -6,7 +6,7 @@
 
 export const METHODOLOGY_MD = `# How Agent Ready scores a site
 
-> 59 checks across four categories, mapped to the Vercel Agent Readability Spec and the llmstxt.org standard. Every check is open and reproducible.
+> 60 checks across four categories, mapped to the Vercel Agent Readability Spec and the llmstxt.org standard. Every check is open and reproducible.
 
 ## What does Agent Ready measure?
 
@@ -44,7 +44,7 @@ Full guide: <https://agent-ready.dev/methodology>
 
 export const CHECKS_MD = `# Agent Ready check registry
 
-> 59 checks total across four categories. IDs are stable and referenced in every scan result's \`details\` array. Each check is implemented as a single function in \`src/lib/checks/{category}/{id}-{slug}.ts\` in the agent-ready repository.
+> 60 checks total across four categories. IDs are stable and referenced in every scan result's \`details\` array. Each check is implemented as a single function in \`src/lib/checks/{category}/{id}-{slug}.ts\` in the agent-ready repository.
 
 ## Site checks (15)
 
@@ -115,7 +115,7 @@ Run when the site has an \`llms.txt\` file. Validate against the [llmstxt.org](h
 | L9 | Content-Type: text/plain |
 | L10 | llms-full.txt available |
 
-## Protocol checks (11)
+## Protocol checks (12)
 
 Discover-then-validate: when the relevant well-known endpoint returns 404, the check drops rather than failing. A marketing site doesn't score itself against agent manifests it has no reason to ship.
 
@@ -132,11 +132,12 @@ Discover-then-validate: when the relevant well-known endpoint returns 404, the c
 | C9 | UCP OAuth Authorization Server metadata |
 | C10 | x402 Payment Required response |
 | C11 | x402 accepts entries |
+| C12 | NLWeb endpoint |
 `;
 
 export const LLMS_TXT = `# Agent Ready
 
-> Agent Ready is a free tool that scores any website against the Vercel Agent Readability Spec, the llmstxt.org specification, and agent-protocol specs (MCP, A2A, agents.json). It runs 59 checks and provides actionable fix guidance for every failing check.
+> Agent Ready is a free tool that scores any website against the Vercel Agent Readability Spec, the llmstxt.org specification, and agent-protocol specs (MCP, A2A, agents.json). It runs 60 checks and provides actionable fix guidance for every failing check.
 
 This resource mirrors agent-ready.dev's own /llms.txt so MCP clients can introspect the same surface that ChatGPT, Perplexity, and other AI agents see when discovering Agent Ready as a tool.
 
@@ -166,7 +167,7 @@ This resource mirrors agent-ready.dev's own /llms.txt so MCP clients can introsp
 
 export const SPECS_MD = `# Specs Agent Ready validates against
 
-Agent Ready's 59 checks map to seven specifications. Each entry below links to the canonical document and notes the check IDs that implement it.
+Agent Ready's 60 checks map to the specifications below. Each entry links to the canonical document and notes the check IDs that implement it.
 
 ## Vercel Agent Readability Spec
 
@@ -218,4 +219,10 @@ A composite profile that bundles OAuth authorization server metadata ([RFC 8414]
 Reference: <https://www.x402.org>
 
 Behavioural rather than manifest-based. Agent Ready probes the scanned URL preserving its path; if the response is HTTP 402 with valid \`accepts\` entries, C10 and C11 pass. Otherwise both drop.
+
+## NLWeb
+
+Canonical: <https://nlweb.ai/docs/specification>
+
+An open natural-language query protocol: a site exposes \`POST /ask\` returning Schema.org-typed JSON, and every NLWeb instance is also an MCP server. NLWeb has no discovery standard, so detection is heuristic — Agent Ready does a low-aggression GET to the conventional \`/ask\` path and correlates with the MCP server card. Drives C12 (best-effort NLWeb endpoint detection, informational).
 `;

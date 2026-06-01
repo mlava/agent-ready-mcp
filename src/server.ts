@@ -4,11 +4,16 @@ import { registerPrompts } from "./prompts.js";
 import { registerResources } from "./resources.js";
 import { getScanById } from "./tools/getScan.js";
 import { scanSite, ToolError } from "./tools/scanSite.js";
-import { getScanInputShape, scanSiteInputShape } from "./types.js";
+import { askQuery } from "./tools/ask.js";
+import {
+  askInputShape,
+  getScanInputShape,
+  scanSiteInputShape,
+} from "./types.js";
 
 const SERVER_INFO = {
   name: "agent-ready",
-  version: "0.2.0",
+  version: "0.3.0",
 } as const;
 
 export function createMcpServer(config: Config): McpServer {
@@ -55,6 +60,24 @@ export function createMcpServer(config: Config): McpServer {
     async (args) => {
       try {
         return await getScanById(config, args);
+      } catch (err) {
+        return toolErrorToContent(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "ask",
+    {
+      title: "Ask Agent Ready in natural language",
+      description:
+        "Natural-language search (NLWeb /ask) over Agent Ready's own content — scoring methodology, the check registry, and the specs it validates. Public, no API key required. Returns Schema.org-typed result objects; optional itemType narrows to a corpus type and mode 'summarize' adds an extractive summary.",
+      inputSchema: askInputShape,
+      annotations: READ_ONLY_OPEN_WORLD,
+    },
+    async (args) => {
+      try {
+        return await askQuery(config, args);
       } catch (err) {
         return toolErrorToContent(err);
       }

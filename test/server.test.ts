@@ -39,10 +39,10 @@ interface RegisteredResources {
 }
 
 describe("createMcpServer", () => {
-  it("registers scan_site and get_scan tools", () => {
+  it("registers scan_site, get_scan, and ask tools", () => {
     const server = createMcpServer(TEST_CONFIG);
     const tools = (server as unknown as RegisteredTools)._registeredTools;
-    expect(Object.keys(tools).sort()).toEqual(["get_scan", "scan_site"]);
+    expect(Object.keys(tools).sort()).toEqual(["ask", "get_scan", "scan_site"]);
   });
 
   it("registers three discovery prompts", () => {
@@ -95,11 +95,11 @@ describe("createMcpServer", () => {
     const c = result.contents[0]!;
     expect(c.uri).toBe("agent-ready://methodology");
     expect(c.mimeType).toBe("text/markdown");
-    expect(c.text).toContain("59 checks");
+    expect(c.text).toContain("60 checks");
     expect(c.text).toContain("Rating bands");
   });
 
-  it("checks resource enumerates all 59 checks across four tables", async () => {
+  it("checks resource enumerates all 60 checks across four tables", async () => {
     const server = createMcpServer(TEST_CONFIG);
     const resources = (server as unknown as RegisteredResources)
       ._registeredResources;
@@ -108,11 +108,12 @@ describe("createMcpServer", () => {
     expect(text).toContain("Site checks (15)");
     expect(text).toContain("Page checks (23)");
     expect(text).toContain("llms.txt checks (10)");
-    expect(text).toContain("Protocol checks (11)");
+    expect(text).toContain("Protocol checks (12)");
     expect(text).toContain("| S1 |");
     expect(text).toContain("| P11 |");
     expect(text).toContain("| L1 |");
     expect(text).toContain("| C1 |");
+    expect(text).toContain("| C12 |");
   });
 
   it("remediation_plan prompt threads optional focus", () => {

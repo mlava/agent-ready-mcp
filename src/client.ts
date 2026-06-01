@@ -131,3 +131,69 @@ export async function getScanFromApi(config: Config, id: string): Promise<unknow
     timeoutMs: config.getTimeoutMs,
   });
 }
+
+export interface AskRequestBody {
+  q: string;
+  itemType?: string;
+  mode?: "list" | "summarize";
+}
+
+// POST /api/v1/ask is public (no API key required), and NLWeb returns an
+// `_meta` envelope for both answers and failures — including NO_RESULTS (404)
+// and RATE_LIMITED (429). So this has its own path rather than going through
+// `call`: it doesn't require a key, sends one only if present, and passes the
+// envelope through on 404/429 instead of throwing.
+export async function postAsk(
+  config: Config,
+  body: AskRequestBody,
+): Promise<unknown> {
+  const url = `${config.baseUrl}/api/v1/ask`;
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
+  if (config.apiKey) headers.Authorization = `Bearer ${config.apiKey}`;
+
+  const payloadBody = {
+    query: { q: body.q, itemType: body.itemType },
+    prefer: body.mode ? { mode: body.mode } : undefined,
+  };
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payloadBody),
+      signal: AbortSignal.timeout(config.getTimeoutMs),
+    });
+  } catch (err) {
+    if (err instanceof Error && err.name === "TimeoutError") {
+      throw new ApiError(
+        "timeout",
+        `Request to /api/v1/ask timed out after ${config.getTimeoutMs}ms.`,
+      );
+    }
+    const message = err instanceof Error ? err.message : String(err);
+    throw new ApiError("network_error", `Network error calling /api/v1/ask: ${message}`);
+  }
+
+  const text = await res.text();
+  let payload: unknown = null;
+  if (text.length > 0) {
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      // Non-JSON — fall through to the error path below.
+    }
+  }
+
+  // Answers and failures both carry `_meta`; surface the envelope as-is.
+  if (payload && typeof payload === "object" && "_meta" in payload) {
+    return payload;
+  }
+  if (!res.ok) {
+    throw new ApiError(`http_${res.status}`, text || `HTTP ${res.status}`, res.status);
+  }
+  return payload;
+}
