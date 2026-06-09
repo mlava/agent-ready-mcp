@@ -165,64 +165,41 @@ This resource mirrors agent-ready.dev's own /llms.txt so MCP clients can introsp
 - Wildcard agents.json: <https://github.com/wild-card-ai/agents-json>
 `;
 
+// Mirror of the main repo's generated `agent-ready://specs` resource
+// (src/lib/mcp/resource-content.ts → buildSpecsMarkdown(), sourced from
+// src/lib/specs.ts). This standalone package can't import the main repo's
+// modules, so it holds a frozen snapshot — regenerate and paste when the
+// upstream spec registry changes.
 export const SPECS_MD = `# Specs Agent Ready validates against
 
-Agent Ready's 60 checks map to the specifications below. Each entry links to the canonical document and notes the check IDs that implement it.
+Agent Ready's checks map to the specifications below. Each entry links to the canonical document (where one exists) and notes the check IDs that implement it. Entries marked \`pre-standard\` are drafts or emerging conventions; \`behavioural\` entries have no published document. Protocol (C) checks are reported but unscored.
 
-## Vercel Agent Readability Spec
+## Readability
 
-Canonical: <https://vercel.com/kb/guide/agent-readability-spec>
+- **Vercel Agent Readability Spec** — The core spec for exposing a site to AI agents — discovery files, structured data, clean HTML, and markdown mirrors. Drives most site (S) and every page (P) check. Canonical: <https://vercel.com/kb/guide/agent-readability-spec> Checks: S5–S15, P1–P23.
+- **llmstxt.org** — The /llms.txt curated-context file (and optional llms-full.txt companion). Structural checks carry 3× weight in the llms.txt sub-score. Canonical: <https://llmstxt.org> Checks: S1–S4, L1–L10.
 
-Maintained on the Vercel Knowledge Base. Drives the S- (site, 15 checks), P- (page, 23 checks), and most C- (protocol) check series.
+## Agent protocols
 
-## llmstxt.org
+- **MCP Server Cards (SEP-1649)** — The Model Context Protocol discovery card at /.well-known/mcp.json — its presence (C1) and required fields (C2). Canonical: <https://modelcontextprotocol.io> Checks: C1, C2.
+- **OAuth Protected Resource Metadata (RFC 9728)** — Protected-resource metadata an MCP server advertises so agents can locate its authorization server. Canonical: <https://datatracker.ietf.org/doc/html/rfc9728> Checks: C3.
+- **A2A Protocol — Agent Cards** — The agent card at /.well-known/agent-card.json that lets agents discover and call other agents — existence with correct Content-Type (C4) and required fields (C5). Canonical: <https://a2a-protocol.org> Checks: C4, C5.
+- **Wildcard agents.json** _(pre-standard)_ — An OpenAPI extension declaring which existing REST endpoints agents should call. Pre-standard (v0.1.0). Canonical: <https://github.com/wild-card-ai/agents-json> Checks: C6.
+- **agent-permissions.json** _(pre-standard)_ — A manifest declaring per-path agent access policies, served at /.well-known/agent-permissions.json. No canonical spec document yet — defined by the discovery path. Canonical: _none published_ Checks: C7.
+- **UCP — Unified Capability Profile** — A composite profile at /.well-known/ucp bundling OAuth authorization-server metadata with capability declarations. Canonical: <https://ucp.dev> Checks: C8.
+- **OAuth Authorization Server Metadata (RFC 8414)** — The authorization-server metadata a UCP profile references so agents can complete an OAuth flow. Gated on C8. Canonical: <https://datatracker.ietf.org/doc/html/rfc8414> Checks: C9.
 
-Canonical: <https://llmstxt.org>
+## Payments
 
-The \`llms.txt\` file specification (and the optional \`llms-full.txt\` companion). Drives the L1–L10 check series. Structural checks (file accessible, H1 present, valid markdown) carry 3× weight in the llms.txt sub-score; content checks 1×; \`llms-full.txt\` presence 0.5×.
+- **x402 — HTTP 402 Payment Required** — A behavioural payments scheme: a paid endpoint answers with HTTP 402 and a JSON body carrying an accepts array — the 402 response (C10) and valid accepts entries (C11). Canonical: <https://www.x402.org> Checks: C10, C11.
+- **MPP — Machine Payments Protocol** _(pre-standard)_ — The Stripe- and Tempo-authored "Payment" HTTP auth scheme on the IETF standards track — the WWW-Authenticate: Payment challenge (C18) and its required params (C19). Canonical: <https://paymentauth.org/> Checks: C18, C19.
 
-## Model Context Protocol — Server Cards (SEP-1649)
+## Discovery & integrity
 
-Canonical: <https://modelcontextprotocol.io>
-SEP: <https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1649> (ratified 2025-11-25)
-
-The discovery card published at \`/.well-known/mcp.json\`. Drives C1 (exists), C2 (required fields), and C3 (OAuth Protected Resource metadata per [RFC 9728](https://datatracker.ietf.org/doc/html/rfc9728)).
-
-## A2A Protocol — Agent Cards
-
-Canonical: <https://a2a-protocol.org>
-Schema: a2a.proto v1.0.0
-
-The agent card published at \`/.well-known/agent-card.json\`. Drives C4 (exists with correct Content-Type) and C5 (required fields).
-
-## Wildcard agents.json
-
-Canonical: <https://github.com/wild-card-ai/agents-json>
-Version: v0.1.0 (pre-standard)
-
-OpenAPI extension declaring which existing REST endpoints agents should call. Published at \`/agents.json\` or \`/.well-known/agents.json\`. Drives C6.
-
-## agent-permissions.json
-
-Discovery path: \`/.well-known/agent-permissions.json\` (preferred) or \`/agent-permissions.json\`
-
-A manifest declaring per-path agent access policies. Drives C7.
-
-## UCP — Unified Capability Profile
-
-Discovery path: \`/.well-known/ucp\`
-
-A composite profile that bundles OAuth authorization server metadata ([RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414)) with capability declarations. Drives C8 (profile exists) and C9 (OAuth Authorization Server metadata, gated on C8).
-
-## x402 — HTTP 402 Payment Required
-
-Reference: <https://www.x402.org>
-
-Behavioural rather than manifest-based. Agent Ready probes the scanned URL preserving its path; if the response is HTTP 402 with valid \`accepts\` entries, C10 and C11 pass. Otherwise both drop.
-
-## NLWeb
-
-Canonical: <https://nlweb.ai/docs/specification>
-
-An open natural-language query protocol: a site exposes \`POST /ask\` returning Schema.org-typed JSON, and every NLWeb instance is also an MCP server. NLWeb has no discovery standard, so detection is heuristic — Agent Ready does a low-aggression GET to the conventional \`/ask\` path and correlates with the MCP server card. Drives C12 (best-effort NLWeb endpoint detection, informational).
+- **NLWeb** — An open natural-language query protocol: a site exposes POST /ask returning Schema.org-typed JSON. Detection is heuristic and informational. Canonical: <https://nlweb.ai/docs/specification> Checks: C12.
+- **API Catalog (RFC 9727)** — A /.well-known/api-catalog linkset advertising a site's APIs so agents can enumerate them from one well-known entry point. Canonical: <https://www.rfc-editor.org/info/rfc9727> Checks: C13.
+- **Web Bot Auth** _(pre-standard)_ — An HTTP message-signatures directory at /.well-known/http-message-signatures-directory letting well-behaved bots prove their identity. IETF draft. Canonical: <https://datatracker.ietf.org/doc/draft-meunier-web-bot-auth-architecture/> Checks: C14.
+- **Agent Skills Discovery** _(pre-standard)_ — A /.well-known/agent-skills/index.json manifest advertising installable agent skills. Pre-standard (Cloudflare RFC v0.2.0). Canonical: <https://github.com/cloudflare/agent-skills-discovery> Checks: C15.
+- **Content parity (anti-cloaking)** _(behavioural)_ — Not a published spec — a behavioural check comparing the AI-bot response to the baseline to detect cloaking (serving agents different content than humans). Canonical: _none published_ Checks: C16.
+- **Agent-driven UI (A2UI)** _(pre-standard)_ — MCP-Apps / OpenAI Apps SDK UI surfaces declared on an MCP Server Card, letting agents render interactive widgets inline. Emerging. Canonical: <https://modelcontextprotocol.io> Checks: C17.
 `;

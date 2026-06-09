@@ -78,7 +78,7 @@ export function registerResources(server: McpServer): void {
     {
       title: "Specifications Agent Ready validates against",
       description:
-        "Canonical URLs and check-ID mappings for the specifications Agent Ready implements: Vercel Agent Readability Spec, llmstxt.org, MCP Server Cards (SEP-1649 / RFC 9728), A2A Agent Cards (a2a.proto v1.0.0), Wildcard agents.json, agent-permissions.json, UCP (RFC 8414), x402 Payment Required, and NLWeb.",
+        "Canonical URLs and check-ID mappings for the specifications Agent Ready implements: Vercel Agent Readability Spec, llmstxt.org, MCP Server Cards (SEP-1649 / RFC 9728), A2A Agent Cards (a2a.proto v1.0.0), Wildcard agents.json, agent-permissions.json, UCP (RFC 8414), x402 and MPP payments, NLWeb, API Catalog (RFC 9727), Web Bot Auth, Agent Skills Discovery, content parity, and Agent-driven UI (A2UI).",
       mimeType: "text/markdown",
     },
     async () => ({
