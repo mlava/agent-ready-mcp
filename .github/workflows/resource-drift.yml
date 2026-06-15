@@ -1,0 +1,33 @@
+name: Resource drift
+
+# The MCP resource bodies in src/resource-content.ts are frozen snapshots of
+# content the hosted agent-ready.dev server generates dynamically (the check
+# registry grows as new checks ship). This job reads the live resources and
+# fails if the snapshots have gone stale, so drift surfaces on a schedule rather
+# than silently. It is deliberately NOT on pull_request: it depends on an
+# external service and must never block an unrelated PR.
+
+on:
+  schedule:
+    # Mondays at 06:00 UTC.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Check resource snapshots against the live server
+        run: node scripts/check-resource-drift.mjs
