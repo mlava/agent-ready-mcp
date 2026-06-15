@@ -1,26 +1,49 @@
-// Keep server.json (the MCP registry manifest) in lockstep with package.json.
-// Run automatically by the npm `version` lifecycle hook, so `npm version <bump>`
-// updates both files in a single version commit. Without this, server.json's
-// version drifts behind package.json and the MCP registry publish fails with
-// "cannot publish duplicate version" (the registry also pins which npm version
-// MCP clients install, so it must not lag).
+// Keep every version surface in lockstep with package.json. Run automatically by
+// the npm `version` lifecycle hook, so `npm version <bump>` updates all of them
+// in a single version commit. Without this, the secondary surfaces drift behind
+// package.json — which is how the v0.4.1 MCP-registry publish failed with
+// "cannot publish duplicate version" (server.json stayed at 0.4.0).
 //
-// server.json carries the version in two places: the top-level `version` and
-// each entry in `packages[].version`. Both are set to package.json's version.
+// The version lives in FIVE places besides package.json:
+//   - server.json            top-level `version` + each `packages[].version`
+//   - manifest.json          top-level `version` (the .mcpb / DXT manifest)
+//   - src/server.ts          SERVER_INFO.version (reported in the MCP handshake)
+// package-lock.json is handled by `npm version` itself.
 
 import { readFileSync, writeFileSync } from "node:fs";
 
-const pkg = JSON.parse(readFileSync("package.json", "utf8"));
-const target = pkg.version;
+const target = JSON.parse(readFileSync("package.json", "utf8")).version;
+const SEMVER = /\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?/;
 
-const path = "server.json";
-const server = JSON.parse(readFileSync(path, "utf8"));
-
+// server.json — JSON with two version fields. Reparse/serialize (2-space, file
+// is canonical 2-space JSON so the diff stays minimal).
+const server = JSON.parse(readFileSync("server.json", "utf8"));
 server.version = target;
 if (Array.isArray(server.packages)) {
   for (const p of server.packages) p.version = target;
 }
+writeFileSync("server.json", JSON.stringify(server, null, 2) + "\n");
 
-// Preserve 2-space indentation + trailing newline (matches the committed file).
-writeFileSync(path, JSON.stringify(server, null, 2) + "\n");
-console.log(`synced server.json → ${target}`);
+// manifest.json — single top-level `"version": "x.y.z"`. Targeted replacement
+// avoids reformatting the large tools/prompts payload.
+const manifest = readFileSync("manifest.json", "utf8");
+writeFileSync(
+  "manifest.json",
+  manifest.replace(
+    new RegExp(`("version":\\s*")${SEMVER.source}(")`),
+    `$1${target}$2`,
+  ),
+);
+
+// src/server.ts — SERVER_INFO.version. Anchored to the name line so an unrelated
+// `version:` elsewhere can't be hit.
+const serverTs = readFileSync("src/server.ts", "utf8");
+writeFileSync(
+  "src/server.ts",
+  serverTs.replace(
+    new RegExp(`(name: "agent-ready",\\s*\\n\\s*version: ")${SEMVER.source}(")`),
+    `$1${target}$2`,
+  ),
+);
+
+console.log(`synced server.json, manifest.json, src/server.ts → ${target}`);
