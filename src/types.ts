@@ -37,12 +37,14 @@ export const askInputShape = {
     .min(1)
     .max(2000)
     .describe(
-      "Natural-language question about Agent Ready's scoring methodology, its check registry, or the specs it validates.",
+      "Natural-language question about Agent Ready's scoring methodology, its check registry, the specs it validates, or its content library (explainers, comparisons, how-to guides, glossary).",
     ),
   itemType: z
-    .enum(["methodology", "checks", "specs", "llms-txt", "check", "any"])
+    .enum(["methodology", "checks", "specs", "llms-txt", "check", "page", "any"])
     .optional()
-    .describe("Optional filter narrowing the search to one corpus type."),
+    .describe(
+      "Optional filter narrowing the search to one corpus type ('page' = explainers/guides/glossary).",
+    ),
   mode: z
     .enum(["list", "summarize"])
     .optional()

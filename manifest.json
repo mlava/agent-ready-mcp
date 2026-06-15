@@ -56,7 +56,7 @@
     {
       "name": "scan_site",
       "title": "Scan a site for AI agent readability",
-      "description": "Runs the agent-ready.dev scanner against a URL and returns structured results: a 0–100 Vercel agent-readability score, a 0–100 llms.txt sub-score, and per-check findings with `howToFix` strings. The 60 checks span four spec families — Vercel Agent Readability Spec (S1–S15 site-wide + P1–P23 per-page), llmstxt.org (L1–L10), and agent protocols (C1–C12 covering MCP, A2A, agents.json, agent-permissions.json, UCP, x402, NLWeb). Use when the user wants a fresh audit of a publicly-reachable URL. Accepts an optional `pageLimit` (1–2000, capped by plan: Free 25, Pro 250, Team 2000). The hosted REST endpoint returns a 202 placeholder immediately and runs the scan asynchronously; this tool polls every 2 seconds for up to 60 seconds and returns the full scan if it completes, otherwise it returns `{ id, status: 'running', pollUrl }` so the caller can poll later with get_scan. Read-only and idempotent — safe to retry. Requires AGENT_READY_API_KEY; without it the tool returns an isError configuration message. Rate limits: Pro 10 scans/minute and 200/day, Team 60/minute and 2000/day.",
+      "description": "Runs the agent-ready.dev scanner against a URL and returns structured results: a 0–100 Vercel agent-readability score, a 0–100 llms.txt sub-score, and per-check findings with `howToFix` strings. The 68 checks span four spec families — Vercel Agent Readability Spec (S1–S15 site-wide + P1–P23 per-page), llmstxt.org (L1–L10), and agent protocols (C1–C20 covering MCP, A2A, agents.json, agent-permissions.json, UCP, x402, NLWeb, API Catalog, Web Bot Auth, Agent Skills Discovery, A2UI, MPP, AP2, plus a content-integrity cloaking check). Use when the user wants a fresh audit of a publicly-reachable URL. Accepts an optional `pageLimit` (1–2000, capped by plan: Free 25, Pro 250, Team 2000). The hosted REST endpoint returns a 202 placeholder immediately and runs the scan asynchronously; this tool polls every 2 seconds for up to 60 seconds and returns the full scan if it completes, otherwise it returns `{ id, status: 'running', pollUrl }` so the caller can poll later with get_scan. Read-only and idempotent — safe to retry. Requires AGENT_READY_API_KEY; without it the tool returns an isError configuration message. Rate limits: Pro 10 scans/minute and 200/day, Team 60/minute and 2000/day.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -108,7 +108,7 @@
     {
       "name": "ask",
       "title": "Ask Agent Ready in natural language",
-      "description": "Natural-language search (NLWeb /ask) over Agent Ready's own content — scoring methodology, the check registry, and the specs it validates. Public, no API key required. Returns Schema.org-typed result objects (Article / TechArticle / WebPage). Optional `itemType` narrows to a corpus type (methodology, checks, specs, llms-txt, check); `mode: 'summarize'` adds an extractive summary over the top results. Read-only and idempotent.",
+      "description": "Natural-language search (NLWeb /ask) over Agent Ready's own content — scoring methodology, the check registry, the specs it validates, and the content library (explainers, comparisons, how-to guides, glossary). Public, no API key required. Returns Schema.org-typed result objects (Article / TechArticle / WebPage). Optional `itemType` narrows to a corpus type (methodology, checks, specs, llms-txt, check, page); `mode: 'summarize'` adds an extractive summary over the top results. Read-only and idempotent.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -120,8 +120,8 @@
           },
           "itemType": {
             "type": "string",
-            "enum": ["methodology", "checks", "specs", "llms-txt", "check", "any"],
-            "description": "Optional filter narrowing the search to one corpus type."
+            "enum": ["methodology", "checks", "specs", "llms-txt", "check", "page", "any"],
+            "description": "Optional filter narrowing the search to one corpus type ('page' = explainers/guides/glossary)."
           },
           "mode": {
             "type": "string",
@@ -190,14 +190,14 @@
       "name": "methodology",
       "uri": "agent-ready://methodology",
       "title": "Scoring methodology",
-      "description": "How Agent Ready computes the 0–100 readability score and the llms.txt sub-score. Covers the 60 checks across four categories, rating bands, weighting, and JS-rendering handling.",
+      "description": "How Agent Ready computes the 0–100 readability score and the llms.txt sub-score. Covers the 68 checks across four categories, rating bands, weighting, and JS-rendering handling.",
       "mimeType": "text/markdown"
     },
     {
       "name": "checks",
       "uri": "agent-ready://checks",
       "title": "Check registry",
-      "description": "Reference table of all 60 checks Agent Ready runs, grouped by category (site, page, llms.txt, protocol). Each row pairs the stable check ID (e.g. P11, S15, L9, C3) with its human-readable name.",
+      "description": "Reference table of all 68 checks Agent Ready runs, grouped by category (site, page, llms.txt, protocol). Each row pairs the stable check ID (e.g. P11, S15, L9, C3) with its human-readable name.",
       "mimeType": "text/markdown"
     },
     {

@@ -74,7 +74,7 @@ export function createMcpServer(config: Config): McpServer {
     {
       title: "Ask Agent Ready in natural language",
       description:
-        "Natural-language search (NLWeb /ask) over Agent Ready's own content — scoring methodology, the check registry, and the specs it validates. Public, no API key required. Returns Schema.org-typed result objects; optional itemType narrows to a corpus type and mode 'summarize' adds an extractive summary.",
+        "Natural-language search (NLWeb /ask) over Agent Ready's own content — scoring methodology, the check registry, the specs it validates, and the content library (explainers, comparisons, how-to guides, glossary). Public, no API key required. Returns Schema.org-typed result objects; optional itemType narrows to a corpus type and mode 'summarize' adds an extractive summary.",
       inputSchema: askInputShape,
       outputSchema: askOutputShape,
       annotations: READ_ONLY_OPEN_WORLD,
