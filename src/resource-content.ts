@@ -6,7 +6,7 @@
 
 export const METHODOLOGY_MD = `# How Agent Ready scores a site
 
-> 60 checks across four categories, mapped to the Vercel Agent Readability Spec and the llmstxt.org standard. Every check is open and reproducible.
+> 68 checks across four categories, mapped to the Vercel Agent Readability Spec and the llmstxt.org standard. Every check is open and reproducible.
 
 ## What does Agent Ready measure?
 
@@ -44,7 +44,7 @@ Full guide: <https://agent-ready.dev/methodology>
 
 export const CHECKS_MD = `# Agent Ready check registry
 
-> 60 checks total across four categories. IDs are stable and referenced in every scan result's \`details\` array. Each check is implemented as a single function in \`src/lib/checks/{category}/{id}-{slug}.ts\` in the agent-ready repository.
+> 68 checks total across four categories. IDs are stable and referenced in every scan result's \`details\` array. Each check is implemented as a single function in \`src/lib/checks/{category}/{id}-{slug}.ts\` in the agent-ready repository.
 
 ## Site checks (15)
 
@@ -115,7 +115,7 @@ Run when the site has an \`llms.txt\` file. Validate against the [llmstxt.org](h
 | L9 | Content-Type: text/plain |
 | L10 | llms-full.txt available |
 
-## Protocol checks (12)
+## Protocol checks (20)
 
 Discover-then-validate: when the relevant well-known endpoint returns 404, the check drops rather than failing. A marketing site doesn't score itself against agent manifests it has no reason to ship.
 
@@ -133,11 +133,19 @@ Discover-then-validate: when the relevant well-known endpoint returns 404, the c
 | C10 | x402 Payment Required response |
 | C11 | x402 accepts entries |
 | C12 | NLWeb endpoint |
+| C13 | API Catalog (RFC 9727) |
+| C14 | Web Bot Auth directory |
+| C15 | Agent Skills Discovery |
+| C16 | Content parity (no cloaking) |
+| C17 | Agent-driven UI (A2UI) |
+| C18 | MPP Payment challenge |
+| C19 | MPP challenge params |
+| C20 | AP2 payment protocol support |
 `;
 
 export const LLMS_TXT = `# Agent Ready
 
-> Agent Ready is a free tool that scores any website against the Vercel Agent Readability Spec, the llmstxt.org specification, and agent-protocol specs (MCP, A2A, agents.json). It runs 60 checks and provides actionable fix guidance for every failing check.
+> Agent Ready is a free tool that scores any website against the Vercel Agent Readability Spec, the llmstxt.org specification, and agent-protocol specs (MCP, A2A, agents.json). It runs 68 checks and provides actionable fix guidance for every failing check.
 
 This resource mirrors agent-ready.dev's own /llms.txt so MCP clients can introspect the same surface that ChatGPT, Perplexity, and other AI agents see when discovering Agent Ready as a tool.
 
@@ -165,7 +173,7 @@ This resource mirrors agent-ready.dev's own /llms.txt so MCP clients can introsp
 - Wildcard agents.json: <https://github.com/wild-card-ai/agents-json>
 `;
 
-// Mirror of the main repo's generated `agent-ready://specs` resource
+// Mirror of the main repo's generated \`agent-ready://specs\` resource
 // (src/lib/mcp/resource-content.ts → buildSpecsMarkdown(), sourced from
 // src/lib/specs.ts). This standalone package can't import the main repo's
 // modules, so it holds a frozen snapshot — regenerate and paste when the
@@ -193,6 +201,7 @@ Agent Ready's checks map to the specifications below. Each entry links to the ca
 
 - **x402 — HTTP 402 Payment Required** — A behavioural payments scheme: a paid endpoint answers with HTTP 402 and a JSON body carrying an accepts array — the 402 response (C10) and valid accepts entries (C11). Canonical: <https://www.x402.org> Checks: C10, C11.
 - **MPP — Machine Payments Protocol** _(pre-standard)_ — The Stripe- and Tempo-authored "Payment" HTTP auth scheme on the IETF standards track — the WWW-Authenticate: Payment challenge (C18) and its required params (C19). Canonical: <https://paymentauth.org/> Checks: C18, C19.
+- **AP2 — Agent Payments Protocol** _(pre-standard)_ — Google's trust/authorization layer for agent-led payments, built on A2A: a participant advertises support via the AP2 extension URI in its A2A Agent Card. Detection only — mandate verifiable credentials are runtime SD-JWTs with no static artifact. Pre-standard (v0.2.0). Canonical: <https://github.com/google-agentic-commerce/AP2> Checks: C20.
 
 ## Discovery & integrity
 
