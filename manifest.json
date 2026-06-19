@@ -3,8 +3,8 @@
   "name": "agent-ready-mcp",
   "display_name": "Agent Ready",
   "version": "0.4.3",
-  "description": "Scan any URL for AI agent readability against the Vercel Agent Readability Spec, the llmstxt.org standard, and agent-protocol manifests (MCP server cards, A2A, agents.json, agent-permissions.json, UCP, x402, NLWeb). 68 checks with per-check fix guidance.",
-  "long_description": "Agent Ready MCP runs the agent-ready.dev scanner against any public URL and returns a structured agent-readability report: a 0–100 Vercel Agent Readability score, a 0–100 llms.txt sub-score, and per-check findings with concrete remediation hints. The scanner runs 68 checks across four spec families — 38 against the Vercel Agent Readability Spec (15 site-wide plus 23 per-page covering meta tags, JSON-LD, headings, markdown mirrors, content negotiation, code-block language tags, JS-rendering dependency), 10 against the llmstxt.org specification, and 20 against agent protocols (MCP Server Cards per SEP-1649 / RFC 9728, A2A Agent Cards, Wildcard agents.json, agent-permissions.json, UCP, x402, NLWeb, API Catalog per RFC 9727, Web Bot Auth, Agent Skills Discovery, agent-driven UI / A2UI, MPP and AP2 payments, plus a content-integrity cloaking check). Three discovery prompts wire end-to-end workflows: 'scan' (URL → summary), 'interpret_scan' (id → plain-English findings), 'remediation_plan' (id → prioritised fix-it doc). Pairs with a code-editing MCP tool to land the fixes the scanner surfaces. A Pro API key from agent-ready.dev is required (issue one from https://agent-ready.dev/dashboard/api-keys).",
+  "description": "Scan any URL for AI agent readability against the Vercel Agent Readability Spec, the llmstxt.org standard, and agent-protocol manifests (MCP server cards, A2A, agents.json, agent-permissions.json, UCP, x402, NLWeb). 69 checks with per-check fix guidance.",
+  "long_description": "Agent Ready MCP runs the agent-ready.dev scanner against any public URL and returns a structured agent-readability report: a 0–100 Vercel Agent Readability score, a 0–100 llms.txt sub-score, and per-check findings with concrete remediation hints. The scanner runs 69 checks across four spec families — 38 against the Vercel Agent Readability Spec (15 site-wide plus 23 per-page covering meta tags, JSON-LD, headings, markdown mirrors, content negotiation, code-block language tags, JS-rendering dependency), 10 against the llmstxt.org specification, and 21 against agent protocols (MCP Server Cards per SEP-1649 / RFC 9728, A2A Agent Cards, Wildcard agents.json, agent-permissions.json, UCP, x402, NLWeb, API Catalog per RFC 9727, Web Bot Auth, Agent Skills Discovery, agent-driven UI / A2UI, MPP and AP2 payments, ACP (Agentic Commerce Protocol) discovery, plus a content-integrity cloaking check). Three discovery prompts wire end-to-end workflows: 'scan' (URL → summary), 'interpret_scan' (id → plain-English findings), 'remediation_plan' (id → prioritised fix-it doc). Pairs with a code-editing MCP tool to land the fixes the scanner surfaces. A Pro API key from agent-ready.dev is required (issue one from https://agent-ready.dev/dashboard/api-keys).",
   "author": {
     "name": "Mark Lavercombe",
     "url": "https://github.com/mlava"
@@ -56,7 +56,7 @@
     {
       "name": "scan_site",
       "title": "Scan a site for AI agent readability",
-      "description": "Runs the agent-ready.dev scanner against a URL and returns structured results: a 0–100 Vercel agent-readability score, a 0–100 llms.txt sub-score, and per-check findings with `howToFix` strings. The 68 checks span four spec families — Vercel Agent Readability Spec (S1–S15 site-wide + P1–P23 per-page), llmstxt.org (L1–L10), and agent protocols (C1–C20 covering MCP, A2A, agents.json, agent-permissions.json, UCP, x402, NLWeb, API Catalog, Web Bot Auth, Agent Skills Discovery, A2UI, MPP, AP2, plus a content-integrity cloaking check). Use when the user wants a fresh audit of a publicly-reachable URL. Accepts an optional `pageLimit` (1–2000, capped by plan: Free 25, Pro 250, Team 2000). The hosted REST endpoint returns a 202 placeholder immediately and runs the scan asynchronously; this tool polls every 2 seconds for up to 60 seconds and returns the full scan if it completes, otherwise it returns `{ id, status: 'running', pollUrl }` so the caller can poll later with get_scan. Read-only and idempotent — safe to retry. Requires AGENT_READY_API_KEY; without it the tool returns an isError configuration message. Rate limits: Pro 10 scans/minute and 200/day, Team 60/minute and 2000/day.",
+      "description": "Runs the agent-ready.dev scanner against a URL and returns structured results: a 0–100 Vercel agent-readability score, a 0–100 llms.txt sub-score, and per-check findings with `howToFix` strings. The 69 checks span four spec families — Vercel Agent Readability Spec (S1–S15 site-wide + P1–P23 per-page), llmstxt.org (L1–L10), and agent protocols (C1–C21 covering MCP, A2A, agents.json, agent-permissions.json, UCP, x402, NLWeb, API Catalog, Web Bot Auth, Agent Skills Discovery, A2UI, MPP, AP2, ACP, plus a content-integrity cloaking check). Use when the user wants a fresh audit of a publicly-reachable URL. Accepts an optional `pageLimit` (1–2000, capped by plan: Free 25, Pro 250, Team 2000). The hosted REST endpoint returns a 202 placeholder immediately and runs the scan asynchronously; this tool polls every 2 seconds for up to 60 seconds and returns the full scan if it completes, otherwise it returns `{ id, status: 'running', pollUrl }` so the caller can poll later with get_scan. Read-only and idempotent — safe to retry. Requires AGENT_READY_API_KEY; without it the tool returns an isError configuration message. Rate limits: Pro 10 scans/minute and 200/day, Team 60/minute and 2000/day.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -190,14 +190,14 @@
       "name": "methodology",
       "uri": "agent-ready://methodology",
       "title": "Scoring methodology",
-      "description": "How Agent Ready computes the 0–100 readability score and the llms.txt sub-score. Covers the 68 checks across four categories, rating bands, weighting, and JS-rendering handling.",
+      "description": "How Agent Ready computes the 0–100 readability score and the llms.txt sub-score. Covers the 69 checks across four categories, rating bands, weighting, and JS-rendering handling.",
       "mimeType": "text/markdown"
     },
     {
       "name": "checks",
       "uri": "agent-ready://checks",
       "title": "Check registry",
-      "description": "Reference table of all 68 checks Agent Ready runs, grouped by category (site, page, llms.txt, protocol). Each row pairs the stable check ID (e.g. P11, S15, L9, C3) with its human-readable name.",
+      "description": "Reference table of all 69 checks Agent Ready runs, grouped by category (site, page, llms.txt, protocol). Each row pairs the stable check ID (e.g. P11, S15, L9, C3) with its human-readable name.",
       "mimeType": "text/markdown"
     },
     {

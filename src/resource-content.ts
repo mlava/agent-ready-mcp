@@ -6,7 +6,7 @@
 
 export const METHODOLOGY_MD = `# How Agent Ready scores a site
 
-> 68 checks across four categories, mapped to the Vercel Agent Readability Spec and the llmstxt.org standard. Every check is open and reproducible.
+> 69 checks across four categories, mapped to the Vercel Agent Readability Spec and the llmstxt.org standard. Every check is open and reproducible.
 
 ## What does Agent Ready measure?
 
@@ -44,7 +44,7 @@ Full guide: <https://agent-ready.dev/methodology>
 
 export const CHECKS_MD = `# Agent Ready check registry
 
-> 68 checks total across four categories. IDs are stable and referenced in every scan result's \`details\` array. Each check is implemented as a single function in \`src/lib/checks/{category}/{id}-{slug}.ts\` in the agent-ready repository.
+> 69 checks total across four categories. IDs are stable and referenced in every scan result's \`details\` array. Each check is implemented as a single function in \`src/lib/checks/{category}/{id}-{slug}.ts\` in the agent-ready repository.
 
 ## Site checks (15)
 
@@ -115,7 +115,7 @@ Run when the site has an \`llms.txt\` file. Validate against the [llmstxt.org](h
 | L9 | Content-Type: text/plain |
 | L10 | llms-full.txt available |
 
-## Protocol checks (20)
+## Protocol checks (21)
 
 Discover-then-validate: when the relevant well-known endpoint returns 404, the check drops rather than failing. A marketing site doesn't score itself against agent manifests it has no reason to ship.
 
@@ -141,11 +141,12 @@ Discover-then-validate: when the relevant well-known endpoint returns 404, the c
 | C18 | MPP Payment challenge |
 | C19 | MPP challenge params |
 | C20 | AP2 payment protocol support |
+| C21 | ACP profile (/.well-known/acp.json) |
 `;
 
 export const LLMS_TXT = `# Agent Ready
 
-> Agent Ready is a free tool that scores any website against the Vercel Agent Readability Spec, the llmstxt.org specification, and agent-protocol specs (MCP, A2A, agents.json). It runs 68 checks and provides actionable fix guidance for every failing check.
+> Agent Ready is a free tool that scores any website against the Vercel Agent Readability Spec, the llmstxt.org specification, and agent-protocol specs (MCP, A2A, agents.json). It runs 69 checks and provides actionable fix guidance for every failing check.
 
 This resource mirrors agent-ready.dev's own /llms.txt so MCP clients can introspect the same surface that ChatGPT, Perplexity, and other AI agents see when discovering Agent Ready as a tool.
 
@@ -196,6 +197,7 @@ Agent Ready's checks map to the specifications below. Each entry links to the ca
 - **agent-permissions.json** _(pre-standard)_ — A manifest declaring per-path agent access policies, served at /.well-known/agent-permissions.json. No canonical spec document yet — defined by the discovery path. Canonical: _none published_ Checks: C7.
 - **UCP — Unified Capability Profile** — A composite profile at /.well-known/ucp bundling OAuth authorization-server metadata with capability declarations. Canonical: <https://ucp.dev> Checks: C8.
 - **OAuth Authorization Server Metadata (RFC 8414)** — The authorization-server metadata a UCP profile references so agents can complete an OAuth flow. Gated on C8. Canonical: <https://datatracker.ietf.org/doc/html/rfc8414> Checks: C9.
+- **ACP — Agentic Commerce Protocol** _(pre-standard)_ — OpenAI and Stripe's agentic-commerce standard. Sellers advertise support via a discovery document at /.well-known/acp.json declaring protocol version, transports, and capabilities (C21). Pre-standard — the discovery RFC is a Proposal. Canonical: <https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/main/rfcs/rfc.discovery.md> Checks: C21.
 
 ## Payments
 

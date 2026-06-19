@@ -1,6 +1,6 @@
 # agent-ready-mcp
 
-MCP server for [Agent Ready](https://agent-ready.dev) — scan any URL for AI agent readability against the [Vercel Agent Readability Spec](https://vercel.com/kb/guide/agent-readability-spec), the [llmstxt.org](https://llmstxt.org) standard, and agent-protocol manifests (MCP server cards, A2A, agents.json, agent-permissions.json, UCP, x402, NLWeb). 68 checks across four spec families — 38 against the Vercel spec (15 site-wide + 23 per-page), 10 against llmstxt.org, and 20 against agent-protocol manifests — each with per-check fix guidance.
+MCP server for [Agent Ready](https://agent-ready.dev) — scan any URL for AI agent readability against the [Vercel Agent Readability Spec](https://vercel.com/kb/guide/agent-readability-spec), the [llmstxt.org](https://llmstxt.org) standard, and agent-protocol manifests (MCP server cards, A2A, agents.json, agent-permissions.json, UCP, x402, NLWeb). 69 checks across four spec families — 38 against the Vercel spec (15 site-wide + 23 per-page), 10 against llmstxt.org, and 21 against agent-protocol manifests — each with per-check fix guidance.
 
 Hosted at `https://agent-ready.dev/api/v1/mcp` (Streamable HTTP); this package is a thin stdio wrapper around the same REST endpoints, distributed via npm for local MCP clients (Claude Desktop, Claude Code, Cursor, VS Code, Windsurf).
 
@@ -115,7 +115,7 @@ If you'd rather use the hosted MCP server directly (Streamable HTTP transport, n
 
 ## Methodology
 
-The 68 checks, their weights, and the score formula are documented at [agent-ready.dev/methodology](https://agent-ready.dev/methodology). Both `manifest.json` and `server.json` in this repo conform to the relevant registry schemas (Glama Marketplace v0.3 and MCP registry 2025-12-11 respectively).
+The 69 checks, their weights, and the score formula are documented at [agent-ready.dev/methodology](https://agent-ready.dev/methodology). Both `manifest.json` and `server.json` in this repo conform to the relevant registry schemas (Glama Marketplace v0.3 and MCP registry 2025-12-11 respectively).
 
 ## Development
 

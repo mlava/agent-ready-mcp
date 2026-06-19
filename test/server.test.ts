@@ -95,11 +95,11 @@ describe("createMcpServer", () => {
     const c = result.contents[0]!;
     expect(c.uri).toBe("agent-ready://methodology");
     expect(c.mimeType).toBe("text/markdown");
-    expect(c.text).toContain("68 checks");
+    expect(c.text).toContain("69 checks");
     expect(c.text).toContain("Rating bands");
   });
 
-  it("checks resource enumerates all 68 checks across four tables", async () => {
+  it("checks resource enumerates all 69 checks across four tables", async () => {
     const server = createMcpServer(TEST_CONFIG);
     const resources = (server as unknown as RegisteredResources)
       ._registeredResources;
@@ -108,12 +108,13 @@ describe("createMcpServer", () => {
     expect(text).toContain("Site checks (15)");
     expect(text).toContain("Page checks (23)");
     expect(text).toContain("llms.txt checks (10)");
-    expect(text).toContain("Protocol checks (20)");
+    expect(text).toContain("Protocol checks (21)");
     expect(text).toContain("| S1 |");
     expect(text).toContain("| P11 |");
     expect(text).toContain("| L1 |");
     expect(text).toContain("| C1 |");
     expect(text).toContain("| C20 |");
+    expect(text).toContain("| C21 |");
   });
 
   it("remediation_plan prompt threads optional focus", () => {
