@@ -197,3 +197,64 @@ export async function postAsk(
   }
   return payload;
 }
+
+export interface ValidateRequestBody {
+  url?: string;
+  jsonld?: string;
+}
+
+// POST /api/v1/validate/structured-data is public (no API key required) — it
+// validates JSON-LD from a URL or a pasted body synchronously. Like postAsk it
+// has its own path: no key required, sent only if present.
+export async function postValidateStructuredData(
+  config: Config,
+  body: ValidateRequestBody,
+): Promise<unknown> {
+  const path = "/api/v1/validate/structured-data";
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
+  if (config.apiKey) headers.Authorization = `Bearer ${config.apiKey}`;
+
+  let res: Response;
+  try {
+    res = await fetch(`${config.baseUrl}${path}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(config.getTimeoutMs),
+    });
+  } catch (err) {
+    if (err instanceof Error && err.name === "TimeoutError") {
+      throw new ApiError(
+        "timeout",
+        `Request to ${path} timed out after ${config.getTimeoutMs}ms.`,
+      );
+    }
+    const message = err instanceof Error ? err.message : String(err);
+    throw new ApiError("network_error", `Network error calling ${path}: ${message}`);
+  }
+
+  const text = await res.text();
+  let payload: unknown = null;
+  if (text.length > 0) {
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      // Non-JSON — fall through to the error path below.
+    }
+  }
+
+  if (!res.ok) {
+    const detail =
+      payload && typeof payload === "object" && "error" in payload
+        ? (payload as { error: { code?: string; message?: string } }).error
+        : null;
+    const code = detail?.code ?? `http_${res.status}`;
+    const message = (detail?.message ?? text) || `HTTP ${res.status} from ${path}`;
+    throw new ApiError(code, message, res.status);
+  }
+
+  return payload;
+}

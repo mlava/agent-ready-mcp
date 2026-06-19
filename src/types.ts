@@ -51,6 +51,31 @@ export const askInputShape = {
     .describe("'summarize' adds an extractive summary over the top results."),
 } as const;
 
+// validate_structured_data — mirrors POST /api/v1/validate/structured-data,
+// which accepts exactly one of `url` or `jsonld`. (The "exactly one"
+// cross-field rule is enforced in the handler, not the per-field shape, since
+// registerTool takes a ZodRawShape.)
+export const validateStructuredDataInputShape = {
+  url: z
+    .string()
+    .url()
+    .max(2000)
+    .optional()
+    .describe(
+      "URL of a page to fetch and validate its JSON-LD. Provide either url OR jsonld, not both.",
+    ),
+  jsonld: z
+    .string()
+    .max(100_000)
+    .optional()
+    .describe(
+      "A raw JSON-LD string to validate directly (paste mode) — e.g. structured data an agent just authored. Provide either jsonld OR url, not both.",
+    ),
+} as const;
+
 export type ScanSiteInput = z.infer<z.ZodObject<typeof scanSiteInputShape>>;
 export type GetScanInput = z.infer<z.ZodObject<typeof getScanInputShape>>;
 export type AskInput = z.infer<z.ZodObject<typeof askInputShape>>;
+export type ValidateStructuredDataInput = z.infer<
+  z.ZodObject<typeof validateStructuredDataInputShape>
+>;

@@ -39,10 +39,33 @@ interface RegisteredResources {
 }
 
 describe("createMcpServer", () => {
-  it("registers scan_site, get_scan, and ask tools", () => {
+  it("registers scan_site, get_scan, ask, and validate_structured_data tools", () => {
     const server = createMcpServer(TEST_CONFIG);
     const tools = (server as unknown as RegisteredTools)._registeredTools;
-    expect(Object.keys(tools).sort()).toEqual(["ask", "get_scan", "scan_site"]);
+    expect(Object.keys(tools).sort()).toEqual([
+      "ask",
+      "get_scan",
+      "scan_site",
+      "validate_structured_data",
+    ]);
+  });
+
+  it("validate_structured_data rejects ambiguous input without a network call", async () => {
+    const server = createMcpServer(TEST_CONFIG);
+    const tools = (server as unknown as RegisteredTools)._registeredTools;
+    const handler = tools.validate_structured_data!.handler;
+
+    // Both provided → exactly-one guard trips, returns an error result.
+    const both = (await handler({
+      url: "https://example.com",
+      jsonld: "{}",
+    })) as { isError?: boolean; content: Array<{ text: string }> };
+    expect(both.isError).toBe(true);
+    expect(both.content[0]!.text).toContain("invalid_request");
+
+    // Neither provided → same guard.
+    const neither = (await handler({})) as { isError?: boolean };
+    expect(neither.isError).toBe(true);
   });
 
   it("registers three discovery prompts", () => {

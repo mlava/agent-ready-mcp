@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "agent-ready-mcp",
   "display_name": "Agent Ready",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "description": "Scan any URL for AI agent readability against the Vercel Agent Readability Spec, the llmstxt.org standard, and agent-protocol manifests (MCP server cards, A2A, agents.json, agent-permissions.json, UCP, x402, NLWeb). 69 checks with per-check fix guidance.",
   "long_description": "Agent Ready MCP runs the agent-ready.dev scanner against any public URL and returns a structured agent-readability report: a 0–100 Vercel Agent Readability score, a 0–100 llms.txt sub-score, and per-check findings with concrete remediation hints. The scanner runs 69 checks across four spec families — 38 against the Vercel Agent Readability Spec (15 site-wide plus 23 per-page covering meta tags, JSON-LD, headings, markdown mirrors, content negotiation, code-block language tags, JS-rendering dependency), 10 against the llmstxt.org specification, and 21 against agent protocols (MCP Server Cards per SEP-1649 / RFC 9728, A2A Agent Cards, Wildcard agents.json, agent-permissions.json, UCP, x402, NLWeb, API Catalog per RFC 9727, Web Bot Auth, Agent Skills Discovery, agent-driven UI / A2UI, MPP and AP2 payments, ACP (Agentic Commerce Protocol) discovery, plus a content-integrity cloaking check). Three discovery prompts wire end-to-end workflows: 'scan' (URL → summary), 'interpret_scan' (id → plain-English findings), 'remediation_plan' (id → prioritised fix-it doc). Pairs with a code-editing MCP tool to land the fixes the scanner surfaces. A Pro API key from agent-ready.dev is required (issue one from https://agent-ready.dev/dashboard/api-keys).",
   "author": {
@@ -133,6 +133,34 @@
       },
       "annotations": {
         "title": "Ask Agent Ready in natural language",
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "validate_structured_data",
+      "title": "Validate JSON-LD structured data",
+      "description": "Validates a page's (or a pasted) JSON-LD against Agent Ready's structured-data checks (schema lint + agent-coherence: freshness honesty, canonical/.md coherence, entity-name consistency, extraction signal) and returns a verdict with per-check fix guidance. Provide exactly one of `url` (fetch + validate) or `jsonld` (validate a string the agent just authored — no network needed). Public, no API key required. The one structured-data check the first-party validators (validator.schema.org, Rich Results Test) don't do. Read-only and idempotent.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 2000,
+            "description": "URL of a page to fetch and validate its JSON-LD. Provide either url OR jsonld, not both."
+          },
+          "jsonld": {
+            "type": "string",
+            "maxLength": 100000,
+            "description": "A raw JSON-LD string to validate directly (paste mode). Provide either jsonld OR url, not both."
+          }
+        }
+      },
+      "annotations": {
+        "title": "Validate JSON-LD structured data",
         "readOnlyHint": true,
         "destructiveHint": false,
         "idempotentHint": true,

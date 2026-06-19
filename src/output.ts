@@ -48,6 +48,21 @@ export const scanOutputShape = {
   message: z.string().optional(),
 } as const;
 
+// `validate_structured_data`: the D-series result from
+// POST /api/v1/validate/structured-data (agent-ready/src/lib/validators/
+// structured-data.ts → ValidateResult).
+export const validateOutputShape = {
+  mode: z.enum(["url", "paste"]),
+  url: z.string().nullable(),
+  checks: z.array(checkResult),
+  summary: z.object({
+    pass: z.number(),
+    warn: z.number(),
+    fail: z.number(),
+    verdict: z.enum(["agent-ready", "needs-work", "not-agent-readable"]),
+  }),
+} as const;
+
 const askResult = z.object({
   url: z.string().optional(),
   name: z.string().optional(),

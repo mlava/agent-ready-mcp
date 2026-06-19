@@ -9,6 +9,7 @@ Hosted at `https://agent-ready.dev/api/v1/mcp` (Streamable HTTP); this package i
 - **`scan_site`** — fresh agent-readability scan on any URL. Polls the hosted API up to 60s; returns the full scan or a `running` placeholder.
 - **`get_scan`** — fetch a previously-run scan by id.
 - **`ask`** — natural-language (NLWeb) search over Agent Ready's own methodology, checks, and specs. Public, no API key required; returns Schema.org-typed results.
+- **`validate_structured_data`** — validate a page's (or a pasted) JSON-LD against Agent Ready's structured-data checks. Public, no API key required; paste mode needs no network, so an agent can check JSON-LD it just authored.
 - **Three discovery prompts** — `scan`, `interpret_scan`, `remediation_plan`. End-to-end workflows from URL → score → fix-it plan.
 - **`SKILL.md`** — Claude Skill descriptor included under `skills/agent-ready/` for activation routing.
 
@@ -76,6 +77,7 @@ claude mcp add agent-ready \
 | `scan_site` | `url` (string, required), `pageLimit` (number, optional, max 2000 — capped by your plan) | Scan object: Vercel score 0–100, llms.txt sub-score 0–100, per-check findings with `howToFix` strings. Returns `{ id, status: "running" }` placeholder if the scan exceeds the poll deadline. |
 | `get_scan` | `id` (string, scan id from a prior `scan_site` call) | Same scan object as `scan_site`, or `not_found` if the id is unknown or doesn't belong to the authenticated user. |
 | `ask` | `q` (string, required), `itemType` (optional corpus filter), `mode` (optional, `list` or `summarize`) | NLWeb `/ask` over Agent Ready's methodology, checks, and specs. Public — no API key required. Schema.org-typed result objects. |
+| `validate_structured_data` | exactly one of `url` (string) or `jsonld` (string) | D-series structured-data result: `mode`, `url`, per-check findings, and a `summary` verdict. Public — no API key required. Validates schema lint + agent-coherence the first-party validators don't. |
 
 ## Prompts
 

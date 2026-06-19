@@ -5,16 +5,22 @@ import { registerResources } from "./resources.js";
 import { getScanById } from "./tools/getScan.js";
 import { scanSite, ToolError } from "./tools/scanSite.js";
 import { askQuery } from "./tools/ask.js";
-import { askOutputShape, scanOutputShape } from "./output.js";
+import { validateStructuredData } from "./tools/validateStructuredData.js";
+import {
+  askOutputShape,
+  scanOutputShape,
+  validateOutputShape,
+} from "./output.js";
 import {
   askInputShape,
   getScanInputShape,
   scanSiteInputShape,
+  validateStructuredDataInputShape,
 } from "./types.js";
 
 const SERVER_INFO = {
   name: "agent-ready",
-  version: "0.4.3",
+  version: "0.5.0",
 } as const;
 
 export function createMcpServer(config: Config): McpServer {
@@ -82,6 +88,25 @@ export function createMcpServer(config: Config): McpServer {
     async (args) => {
       try {
         return await askQuery(config, args);
+      } catch (err) {
+        return toolErrorToContent(err);
+      }
+    },
+  );
+
+  server.registerTool(
+    "validate_structured_data",
+    {
+      title: "Validate JSON-LD structured data",
+      description:
+        "Validates a page's (or a pasted) JSON-LD against Agent Ready's structured-data checks (schema lint + agent-coherence: freshness honesty, canonical/.md coherence, entity-name consistency, extraction signal) and returns a verdict with per-check fix guidance. Provide exactly one of `url` (fetch + validate) or `jsonld` (validate a string the agent just authored — no network needed). Public, no API key required. The one structured-data check the first-party validators (validator.schema.org, Rich Results Test) don't do.",
+      inputSchema: validateStructuredDataInputShape,
+      outputSchema: validateOutputShape,
+      annotations: READ_ONLY_OPEN_WORLD,
+    },
+    async (args) => {
+      try {
+        return await validateStructuredData(config, args);
       } catch (err) {
         return toolErrorToContent(err);
       }
