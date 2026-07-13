@@ -44,6 +44,7 @@
   ],
   "scripts": {
     "build": "node scripts/build.mjs",
+    "pack": "node scripts/pack.mjs",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",

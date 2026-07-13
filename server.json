@@ -43,5 +43,11 @@
         }
       ]
     }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://agent-ready.dev/api/v1/mcp"
+    }
   ]
 }

@@ -45,7 +45,12 @@ Node 20, installs with `npm ci`, then runs `npm run typecheck`, `npm test`, and
    npm run typecheck
    npm test
    npm run build
+   npm run pack
    ```
+
+   `npm run pack` writes `agent-ready-mcp.mcpb` at the repo root. It refuses to
+   pack if `package.json` and `manifest.json` disagree, or if
+   `dist/mcp-server.mjs` has not been built.
 
 4. Create the version commit and tag.
 
@@ -97,14 +102,23 @@ Pushing a `v*` tag triggers `.github/workflows/release.yml`. The workflow:
 4. Runs `npm run typecheck`.
 5. Runs `npm test`.
 6. Runs `npm run build`.
-7. Publishes to npm with Sigstore provenance.
+7. Runs `npm run pack` to build `agent-ready-mcp.mcpb`.
 8. Downloads the latest `mcp-publisher` from `modelcontextprotocol/registry`.
-9. Authenticates to the official MCP registry with GitHub OIDC.
-10. Publishes `server.json` to the official MCP registry.
+9. Validates `server.json` with `mcp-publisher validate server.json`.
+10. Publishes to npm with Sigstore provenance.
+11. Authenticates to the official MCP registry with GitHub OIDC.
+12. Publishes `server.json` to the official MCP registry.
+13. Creates the GitHub Release for the tag and attaches `agent-ready-mcp.mcpb`.
 
-The workflow owns npm publishing and MCP registry publishing. Never run
-`npm publish` or `mcp-publisher publish` by hand for a release; doing that races
-the workflow.
+The two orderings above are deliberate. Validation runs *before* npm publish
+because npm versions are immutable — metadata the registry would reject has to
+fail the release before the package is public. The GitHub Release is created
+*last* because it is the public announcement: it should only exist once npm and
+the registry have both accepted the version.
+
+The workflow owns npm publishing, MCP registry publishing, and `.mcpb` bundle
+upload. Never run `npm publish`, `mcp-publisher publish`, or manual bundle upload
+for a release; doing that races the workflow.
 
 The one repository secret required by the release workflow is `NPM_TOKEN`, an
 npm automation token with publish access for `agent-ready-mcp`. The MCP registry
@@ -114,20 +128,19 @@ publish uses GitHub OIDC and does not use a stored registry secret.
 
 After the workflow succeeds:
 
-1. Create the GitHub Release by hand from the pushed tag. Write the release
-   notes manually.
+1. Review the GitHub Release created by the workflow and replace or edit the
+   generated notes as needed.
 
-### The `.mcpb` bundle — a known, unresolved regression
+### The `.mcpb` bundle
 
 Releases **v0.1.1 through v0.4.0 each attached `agent-ready-mcp.mcpb`** (the Claude
-Desktop Extension bundle). **v0.5.0 and v0.5.1 attach nothing.** The bundle was built
-out-of-band — there is no `pack` script, and `agent-ready-mcp.mcpb` is gitignored — so
-when the manual step was skipped, it stopped shipping silently.
+Desktop Extension bundle). **v0.5.0 and v0.5.1 attached nothing** because packing was
+manual and the generated bundle is gitignored. Keep the scripted `npm run pack` and
+workflow upload in place so the bundle cannot silently disappear again.
 
-Consequence: anyone installing via the `.mcpb` is stuck on v0.4.0's feature set (no
-`validate_structured_data`, and none of the v0.5.1 metadata fixes). Either restore the
-bundle as a real, scripted release step, or drop it deliberately and say so on the
-listing pages that still advertise it. Do not leave it as-is.
+The repo's `manifest.json` remains the v0.3 document consumed by Glama Marketplace.
+`npm run pack` creates a temporary mcpb-conformed copy for the packer and must not
+modify the checked-in manifest.
 
 There is no LobeHub step. This server is **not listed on LobeHub** (verified
 2026-07-13 with `lhm mcp search` — the sibling `scholar-sidekick-mcp` is listed, this

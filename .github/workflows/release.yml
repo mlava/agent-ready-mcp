@@ -6,7 +6,7 @@ on:
       - "v*"
 
 permissions:
-  contents: read
+  contents: write
   id-token: write # npm provenance + mcp-publisher GitHub OIDC
 
 jobs:
@@ -32,13 +32,8 @@ jobs:
       - name: Build dist/mcp-server.mjs
         run: npm run build
 
-      - name: Publish to npm
-        # --provenance attaches a Sigstore attestation tying the tarball to
-        # this workflow run, this commit, and this tag. Surfaces as the
-        # green "Provenance" badge on npmjs.com.
-        run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Build Claude Desktop Extension bundle
+        run: npm run pack
 
       - name: Install mcp-publisher
         # Asset name on modelcontextprotocol/registry is exactly
@@ -54,6 +49,20 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
+      - name: Validate MCP registry metadata
+        # Runs BEFORE npm publish on purpose. npm versions are immutable and
+        # cannot be reused, so a server.json the registry would reject must fail
+        # the release here — not after the package is already public.
+        run: ./mcp-publisher validate server.json
+
+      - name: Publish to npm
+        # --provenance attaches a Sigstore attestation tying the tarball to
+        # this workflow run, this commit, and this tag. Surfaces as the
+        # green "Provenance" badge on npmjs.com.
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Authenticate to MCP registry via GitHub OIDC
         # No secret needed — the github-oidc method exchanges the workflow's
         # OIDC token for a registry session bound to io.github.<owner>/...
@@ -61,3 +70,19 @@ jobs:
 
       - name: Publish to MCP registry
         run: ./mcp-publisher publish
+
+      - name: Attach the .mcpb bundle to the GitHub Release
+        # Last, deliberately: a GitHub Release is the public announcement, so it
+        # must only exist once npm AND the registry have actually accepted the
+        # version. Creating it earlier would advertise a release that a failed
+        # npm publish left nowhere else. The release is usually created here; if
+        # one already exists for the tag, the asset is replaced instead.
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" agent-ready-mcp.mcpb --clobber
+          else
+            gh release create "$TAG" agent-ready-mcp.mcpb --generate-notes
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
