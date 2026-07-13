@@ -130,27 +130,9 @@ npm run typecheck
 
 ## Releasing
 
-Two GitHub Actions handle CI and release publishing:
-
-- `.github/workflows/ci.yml` — runs typecheck, tests, and `npm run build` on every PR and push to `main`.
-- `.github/workflows/release.yml` — runs on every `v*` tag push. Publishes to npm (with Sigstore provenance) and to the [MCP registry](https://registry.modelcontextprotocol.io) via GitHub OIDC.
-
-To cut a release:
-
-```bash
-# bump version in package.json, manifest.json, server.json, src/server.ts
-git commit -am "vX.Y.Z: ..."
-git tag vX.Y.Z
-git push && git push --tags
-```
-
-The release workflow handles npm + MCP registry automatically. Smithery republish (for the `.mcpb` bundle) and the GitHub release with custom notes are still manual — both have custom-content friction that's not worth automating today.
-
-### Required repository secret
-
-- `NPM_TOKEN` — npm automation token with publish access for `agent-ready-mcp`. Add at GitHub repo Settings → Secrets and variables → Actions.
-
-The MCP registry publish uses GitHub OIDC (no stored secret required).
+See [RELEASE.md](RELEASE.md). It is the source of truth for version surfaces,
+local checks, tag pushing, the GitHub Actions release workflow, and the manual
+post-release steps.
 
 ## License
 
