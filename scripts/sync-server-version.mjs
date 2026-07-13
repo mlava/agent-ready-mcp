@@ -15,6 +15,28 @@ import { readFileSync, writeFileSync } from "node:fs";
 const target = JSON.parse(readFileSync("package.json", "utf8")).version;
 const SEMVER = /\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?/;
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function failReplacement(file, pattern, reason) {
+  console.error(`${file}: ${reason}: ${pattern}`);
+  process.exit(1);
+}
+
+function replaceRequired(file, content, pattern, replacement, verifyPattern) {
+  if (!pattern.test(content)) {
+    failReplacement(file, pattern, "version replacement pattern did not match");
+  }
+
+  const next = content.replace(pattern, replacement);
+  if (!verifyPattern.test(next)) {
+    failReplacement(file, verifyPattern, `target version ${target} was not present after replacement`);
+  }
+
+  return next;
+}
+
 // server.json — JSON with two version fields. Reparse/serialize (2-space, file
 // is canonical 2-space JSON so the diff stays minimal).
 const server = JSON.parse(readFileSync("server.json", "utf8"));
@@ -27,22 +49,38 @@ writeFileSync("server.json", JSON.stringify(server, null, 2) + "\n");
 // manifest.json — single top-level `"version": "x.y.z"`. Targeted replacement
 // avoids reformatting the large tools/prompts payload.
 const manifest = readFileSync("manifest.json", "utf8");
+const manifestVersionPattern = new RegExp(`("version":\\s*")${SEMVER.source}(")`);
+const manifestTargetPattern = new RegExp(
+  `("version":\\s*")${escapeRegExp(target)}(")`,
+);
 writeFileSync(
   "manifest.json",
-  manifest.replace(
-    new RegExp(`("version":\\s*")${SEMVER.source}(")`),
+  replaceRequired(
+    "manifest.json",
+    manifest,
+    manifestVersionPattern,
     `$1${target}$2`,
+    manifestTargetPattern,
   ),
 );
 
 // src/server.ts — SERVER_INFO.version. Anchored to the name line so an unrelated
 // `version:` elsewhere can't be hit.
 const serverTs = readFileSync("src/server.ts", "utf8");
+const serverInfoPattern = new RegExp(
+  `(name: "agent-ready",\\s*\\n\\s*version: ")${SEMVER.source}(")`,
+);
+const serverInfoTargetPattern = new RegExp(
+  `(name: "agent-ready",\\s*\\n\\s*version: ")${escapeRegExp(target)}(")`,
+);
 writeFileSync(
   "src/server.ts",
-  serverTs.replace(
-    new RegExp(`(name: "agent-ready",\\s*\\n\\s*version: ")${SEMVER.source}(")`),
+  replaceRequired(
+    "src/server.ts",
+    serverTs,
+    serverInfoPattern,
     `$1${target}$2`,
+    serverInfoTargetPattern,
   ),
 );
 

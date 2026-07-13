@@ -22,15 +22,23 @@ function packageVersion(): string {
 
 function serverInfoVersion(): string {
   const source = readText("src/server.ts");
-  const match = source.match(
-    /const\s+SERVER_INFO\s*=\s*{[\s\S]*?\bversion:\s*"([^"]+)"/,
+  const serverInfoMatch = source.match(
+    /const\s+SERVER_INFO\s*=\s*{(?<body>[\s\S]*?)^\s*}\s+as\s+const\s*;/m,
   );
 
-  if (!match) {
-    throw new Error("src/server.ts SERVER_INFO version could not be found");
+  if (!serverInfoMatch?.groups?.body) {
+    throw new Error("src/server.ts SERVER_INFO object literal could not be found");
   }
 
-  return match[1]!;
+  const versionMatch = serverInfoMatch.groups.body.match(
+    /^\s*version:\s*"([^"]+)",?\s*$/m,
+  );
+
+  if (!versionMatch) {
+    throw new Error("src/server.ts SERVER_INFO.version could not be found");
+  }
+
+  return versionMatch[1]!;
 }
 
 describe("version surfaces", () => {
