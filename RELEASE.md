@@ -115,7 +115,19 @@ publish uses GitHub OIDC and does not use a stored registry secret.
 After the workflow succeeds:
 
 1. Create the GitHub Release by hand from the pushed tag. Write the release
-   notes manually. This repo does not attach build artefacts to GitHub Releases.
+   notes manually.
+
+### The `.mcpb` bundle — a known, unresolved regression
+
+Releases **v0.1.1 through v0.4.0 each attached `agent-ready-mcp.mcpb`** (the Claude
+Desktop Extension bundle). **v0.5.0 and v0.5.1 attach nothing.** The bundle was built
+out-of-band — there is no `pack` script, and `agent-ready-mcp.mcpb` is gitignored — so
+when the manual step was skipped, it stopped shipping silently.
+
+Consequence: anyone installing via the `.mcpb` is stuck on v0.4.0's feature set (no
+`validate_structured_data`, and none of the v0.5.1 metadata fixes). Either restore the
+bundle as a real, scripted release step, or drop it deliberately and say so on the
+listing pages that still advertise it. Do not leave it as-is.
 
 There is no LobeHub step. This server is **not listed on LobeHub** (verified
 2026-07-13 with `lhm mcp search` — the sibling `scholar-sidekick-mcp` is listed, this
