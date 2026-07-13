@@ -47,7 +47,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit",
-    "version": "node scripts/sync-server-version.mjs && git add server.json",
+    "version": "node scripts/sync-server-version.mjs && git add server.json manifest.json src/server.ts",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {

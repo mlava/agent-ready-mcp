@@ -1,7 +1,25 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.mlava/agent-ready-mcp",
+  "title": "Agent Ready",
   "description": "Scan any URL for AI agent readability — Vercel Spec, llmstxt.org, and agent-protocol manifests.",
+  "websiteUrl": "https://agent-ready.dev",
+  "icons": [
+    {
+      "src": "https://agent-ready.dev/icon-512.png",
+      "mimeType": "image/png",
+      "sizes": [
+        "512x512"
+      ]
+    },
+    {
+      "src": "https://agent-ready.dev/icon.svg",
+      "mimeType": "image/svg+xml",
+      "sizes": [
+        "any"
+      ]
+    }
+  ],
   "repository": {
     "url": "https://github.com/mlava/agent-ready-mcp",
     "source": "github"
@@ -17,8 +35,8 @@
       },
       "environmentVariables": [
         {
-          "description": "Your Agent Ready Pro API key. Issue one at https://agent-ready.dev/dashboard/api-keys.",
-          "isRequired": true,
+          "description": "Agent Ready Pro API key for scan_site and get_scan. ask and validate_structured_data work without one. Issue a key at https://agent-ready.dev/dashboard/api-keys.",
+          "isRequired": false,
           "format": "string",
           "isSecret": true,
           "name": "AGENT_READY_API_KEY"
