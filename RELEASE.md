@@ -116,8 +116,13 @@ After the workflow succeeds:
 
 1. Create the GitHub Release by hand from the pushed tag. Write the release
    notes manually. This repo does not attach build artefacts to GitHub Releases.
-2. Open the LobeHub listing and click its "Refresh Metadata" button. LobeHub
-   caches metadata, so the listing stays stale until it is refreshed.
+
+There is no LobeHub step. This server is **not listed on LobeHub** (verified
+2026-07-13 with `lhm mcp search` — the sibling `scholar-sidekick-mcp` is listed, this
+one is not, and `lobehub.com/mcp/<slug>` returns HTTP 200 for *any* slug because it
+serves an SPA shell, so a 200 there proves nothing). Getting listed would need a
+first-time `lhm plugin submit`, not a metadata refresh. If that ever happens, add the
+refresh step back here.
 
 ## Immutable Registry Versions
 
