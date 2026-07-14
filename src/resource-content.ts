@@ -190,27 +190,27 @@ Agent Ready's checks map to the specifications below. Each entry links to the ca
 
 ## Agent protocols
 
-- **MCP Server Cards (SEP-1649)** — The Model Context Protocol discovery card at /.well-known/mcp.json — its presence (C1) and required fields (C2). Canonical: <https://modelcontextprotocol.io> Checks: C1, C2.
+- **MCP Server Cards (SEP-1649)** — The Model Context Protocol discovery card at /.well-known/mcp.json — its presence (C1) and required fields (C2). Canonical: <https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1649> Checks: C1, C2.
 - **OAuth Protected Resource Metadata (RFC 9728)** — Protected-resource metadata an MCP server advertises so agents can locate its authorization server. Canonical: <https://datatracker.ietf.org/doc/html/rfc9728> Checks: C3.
-- **A2A Protocol — Agent Cards** — The agent card at /.well-known/agent-card.json that lets agents discover and call other agents — existence with correct Content-Type (C4) and required fields (C5). Canonical: <https://a2a-protocol.org> Checks: C4, C5.
+- **A2A Protocol — Agent Cards** — The agent card at /.well-known/agent-card.json that lets agents discover and call other agents — existence with correct Content-Type (C4) and required fields (C5). Canonical: <https://a2a-protocol.org/v1.0.0/specification> Checks: C4, C5.
 - **Wildcard agents.json** _(pre-standard)_ — An OpenAPI extension declaring which existing REST endpoints agents should call. Pre-standard (v0.1.0). Canonical: <https://github.com/wild-card-ai/agents-json> Checks: C6.
-- **agent-permissions.json** _(pre-standard)_ — A manifest declaring per-path agent access policies, served at /.well-known/agent-permissions.json. No canonical spec document yet — defined by the discovery path. Canonical: _none published_ Checks: C7.
-- **UCP — Unified Capability Profile** — A composite profile at /.well-known/ucp bundling OAuth authorization-server metadata with capability declarations. Canonical: <https://ucp.dev> Checks: C8.
+- **agent-permissions.json** _(pre-standard)_ — A manifest declaring per-path agent access policies, served at /.well-known/agent-permissions.json. No canonical spec document yet — defined by the discovery path. Canonical: <https://github.com/las-wg/agent-permissions.json/blob/main/README.md> Checks: C7.
+- **UCP — Unified Capability Profile** — A composite profile at /.well-known/ucp bundling OAuth authorization-server metadata with capability declarations. Canonical: <https://ucp.dev/2026-04-08/specification/overview/> Checks: C8.
 - **OAuth Authorization Server Metadata (RFC 8414)** — The authorization-server metadata a UCP profile references so agents can complete an OAuth flow. Gated on C8. Canonical: <https://datatracker.ietf.org/doc/html/rfc8414> Checks: C9.
 - **ACP — Agentic Commerce Protocol** _(pre-standard)_ — OpenAI and Stripe's agentic-commerce standard. Sellers advertise support via a discovery document at /.well-known/acp.json declaring protocol version, transports, and capabilities (C21). Pre-standard — the discovery RFC is a Proposal. Canonical: <https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/main/rfcs/rfc.discovery.md> Checks: C21.
 
 ## Payments
 
-- **x402 — HTTP 402 Payment Required** — A behavioural payments scheme: a paid endpoint answers with HTTP 402 and a JSON body carrying an accepts array — the 402 response (C10) and valid accepts entries (C11). Canonical: <https://www.x402.org> Checks: C10, C11.
-- **MPP — Machine Payments Protocol** _(pre-standard)_ — The Stripe- and Tempo-authored "Payment" HTTP auth scheme on the IETF standards track — the WWW-Authenticate: Payment challenge (C18) and its required params (C19). Canonical: <https://paymentauth.org/> Checks: C18, C19.
+- **x402 — HTTP 402 Payment Required** — A behavioural payments scheme: a paid endpoint answers with HTTP 402 and a JSON body carrying an accepts array — the 402 response (C10) and valid accepts entries (C11). Canonical: <https://github.com/coinbase/x402/blob/main/specs/x402-specification-v2.md> Checks: C10, C11.
+- **MPP — Machine Payments Protocol** _(pre-standard)_ — The Stripe- and Tempo-authored "Payment" HTTP auth scheme on the IETF standards track — the WWW-Authenticate: Payment challenge (C18) and its required params (C19). Canonical: <https://paymentauth.org/draft-httpauth-payment-00.html> Checks: C18, C19.
 - **AP2 — Agent Payments Protocol** _(pre-standard)_ — Google's trust/authorization layer for agent-led payments, built on A2A: a participant advertises support via the AP2 extension URI in its A2A Agent Card. Detection only — mandate verifiable credentials are runtime SD-JWTs with no static artifact. Pre-standard (v0.2.0). Canonical: <https://github.com/google-agentic-commerce/AP2> Checks: C20.
 
 ## Discovery & integrity
 
 - **NLWeb** — An open natural-language query protocol: a site exposes POST /ask returning Schema.org-typed JSON. Detection is heuristic and informational. Canonical: <https://nlweb.ai/docs/specification> Checks: C12.
 - **API Catalog (RFC 9727)** — A /.well-known/api-catalog linkset advertising a site's APIs so agents can enumerate them from one well-known entry point. Canonical: <https://www.rfc-editor.org/info/rfc9727> Checks: C13.
-- **Web Bot Auth** _(pre-standard)_ — An HTTP message-signatures directory at /.well-known/http-message-signatures-directory letting well-behaved bots prove their identity. IETF draft. Canonical: <https://datatracker.ietf.org/doc/draft-meunier-web-bot-auth-architecture/> Checks: C14.
-- **Agent Skills Discovery** _(pre-standard)_ — A /.well-known/agent-skills/index.json manifest advertising installable agent skills. Pre-standard (Cloudflare RFC v0.2.0). Canonical: <https://github.com/cloudflare/agent-skills-discovery-rfc> Checks: C15.
+- **Web Bot Auth** _(pre-standard)_ — An HTTP message-signatures directory at /.well-known/http-message-signatures-directory letting well-behaved bots prove their identity. IETF draft. Canonical: <https://datatracker.ietf.org/doc/html/draft-meunier-web-bot-auth-architecture-05> Checks: C14.
+- **Agent Skills Discovery** _(pre-standard)_ — A /.well-known/agent-skills/index.json manifest advertising installable agent skills. Pre-standard (Cloudflare RFC v0.2.0). Canonical: <https://github.com/cloudflare/agent-skills-discovery-rfc/blob/main/README.md> Checks: C15.
 - **Content parity (anti-cloaking)** _(behavioural)_ — Not a published spec — a behavioural check comparing the AI-bot response to the baseline to detect cloaking (serving agents different content than humans). Canonical: _none published_ Checks: C16.
 - **Agent-driven UI (A2UI)** _(pre-standard)_ — MCP-Apps / OpenAI Apps SDK UI surfaces declared on an MCP Server Card, letting agents render interactive widgets inline. Emerging. Canonical: <https://modelcontextprotocol.io> Checks: C17.
 `;
