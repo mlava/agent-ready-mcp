@@ -142,11 +142,27 @@ Discover-then-validate: when the relevant well-known endpoint returns 404, the c
 | C19 | MPP challenge params |
 | C20 | AP2 payment protocol support |
 | C21 | ACP profile (/.well-known/acp.json) |
+
+## Accessibility checks (9)
+
+Run over the homepage DOM (v1). WCAG-grounded accessibility-tree signals — image text alternatives, form labels, control names — plus a static layout-stability (CLS) proxy. Scored into a separate \`accessibilityScore\`, a distinct suite from the 69 checks above: accessibility is WCAG, not the Vercel Agent Readability Spec, so it never moves the Vercel score.
+
+| ID | Check |
+|---|---|
+| A1 | Images have text alternatives |
+| A2 | Form controls have labels |
+| A3 | Controls have accessible names |
+| A4 | Media declares explicit dimensions |
+| A5 | ARIA name references resolve |
+| A6 | Iframes have an accessible name |
+| A7 | Heading hierarchy is well-formed |
+| A8 | No positive tabindex |
+| A9 | Pinch-zoom is not disabled |
 `;
 
 export const LLMS_TXT = `# Agent Ready
 
-> Agent Ready is a free tool that scores any website against the Vercel Agent Readability Spec, the llmstxt.org specification, and agent-protocol specs (MCP, A2A, agents.json). It runs 69 checks and provides actionable fix guidance for every failing check.
+> Agent Ready is a free tool that scores any website against the Vercel Agent Readability Spec, the llmstxt.org specification, and agent-protocol specs (MCP, A2A, agents.json). It runs 69 checks — plus a separate accessibility sub-score from 9 WCAG 2.2 / layout-stability checks — and provides actionable fix guidance for every failing check.
 
 This resource mirrors agent-ready.dev's own /llms.txt so MCP clients can introspect the same surface that ChatGPT, Perplexity, and other AI agents see when discovering Agent Ready as a tool.
 
@@ -213,4 +229,8 @@ Agent Ready's checks map to the specifications below. Each entry links to the ca
 - **Agent Skills Discovery** _(pre-standard)_ — A /.well-known/agent-skills/index.json manifest advertising installable agent skills. Pre-standard (Cloudflare RFC v0.2.0). Canonical: <https://github.com/cloudflare/agent-skills-discovery-rfc/blob/main/README.md> Checks: C15.
 - **Content parity (anti-cloaking)** _(behavioural)_ — Not a published spec — a behavioural check comparing the AI-bot response to the baseline to detect cloaking (serving agents different content than humans). Canonical: _none published_ Checks: C16.
 - **Agent-driven UI (A2UI)** _(pre-standard)_ — MCP-Apps / OpenAI Apps SDK UI surfaces declared on an MCP Server Card, letting agents render interactive widgets inline. Emerging. Canonical: <https://modelcontextprotocol.io> Checks: C17.
+
+## Accessibility
+
+- **WCAG 2.2 + layout stability** — The accessibility tree — image text alternatives, form labels, control names, resolved ARIA references, named iframes, a clean heading outline — is what assistive tech and AI agents parse to act on a page; explicit media dimensions and enabled zoom keep it stable and usable (with a static CLS proxy). Scored as a separate accessibilityScore, not part of the Vercel score. Canonical: <https://www.w3.org/TR/WCAG22/> Checks: A1–A9.
 `;
