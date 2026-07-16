@@ -38,7 +38,7 @@ export function registerResources(server: McpServer): void {
     {
       title: "Check registry",
       description:
-        "Reference table of all 69 checks Agent Ready runs, grouped by category (site, page, llms.txt, protocol). Each row pairs the stable check ID (e.g. P11, S15, L9, C3) with its human-readable name. Use this to identify a check by id when interpreting scan results.",
+        "Reference table of all 69 checks Agent Ready runs, grouped by category (site, page, llms.txt, protocol), plus the 9-check accessibility suite scored as a separate accessibility sub-score. Each row pairs the stable check ID (e.g. P11, S15, L9, C3, A7) with its human-readable name. Use this to identify a check by id when interpreting scan results.",
       mimeType: "text/markdown",
     },
     async () => ({
