@@ -6,8 +6,8 @@ Hosted at `https://agent-ready.dev/api/v1/mcp` (Streamable HTTP); this package i
 
 ## Features
 
-- **`scan_site`** — fresh agent-readability scan on any URL. Polls the hosted API up to 60s; returns the full scan or a `running` placeholder.
-- **`get_scan`** — fetch a previously-run scan by id.
+- **`scan_site`** — fresh agent-readability scan on any URL. Works without a key on the anonymous free tier (3 scans/30 days per IP, 25-page depth, synchronous); with a Pro key it scans up to 250 pages, polling the hosted API up to 60s.
+- **`get_scan`** — fetch a previously-run scan by id (Pro key required — scan history is account-scoped).
 - **`ask`** — natural-language (NLWeb) search over Agent Ready's own methodology, checks, and specs. Public, no API key required; returns Schema.org-typed results.
 - **`validate_structured_data`** — validate a page's (or a pasted) JSON-LD against Agent Ready's structured-data checks. Public, no API key required; paste mode needs no network, so an agent can check JSON-LD it just authored.
 - **Three discovery prompts** — `scan`, `interpret_scan`, `remediation_plan`. End-to-end workflows from URL → score → fix-it plan.
@@ -15,7 +15,7 @@ Hosted at `https://agent-ready.dev/api/v1/mcp` (Streamable HTTP); this package i
 
 ## Setup
 
-You'll need an Agent Ready Pro API key. Sign up at [agent-ready.dev](https://agent-ready.dev), upgrade to Pro, then issue a key from the [dashboard](https://agent-ready.dev/dashboard/api-keys).
+No key is required to start: `scan_site`, `ask`, and `validate_structured_data` all work anonymously out of the box (`scan_site` on the free anonymous quota — 3 scans per 30 days per IP at 25-page depth). An Agent Ready **Pro API key** unlocks 50 scans/month, 250-page depth, scan history (`get_scan`), and weekly monitoring — sign up at [agent-ready.dev](https://agent-ready.dev) and issue a key from the [dashboard](https://agent-ready.dev/dashboard/api-keys). The `env` block in the configs below is optional; omit it to run keyless.
 
 ### Claude Desktop
 
@@ -65,7 +65,7 @@ claude mcp add agent-ready \
 
 | Variable | Required | Default | Purpose |
 |---|---|---|---|
-| `AGENT_READY_API_KEY` | Yes | — | Bearer token issued from the Agent Ready dashboard. |
+| `AGENT_READY_API_KEY` | No | — | Pro Bearer token from the Agent Ready dashboard. Without it, `scan_site` uses the anonymous free tier and `get_scan` is unavailable. |
 | `AGENT_READY_API_URL` | No | `https://agent-ready.dev` | Override for self-hosted or staging deployments. |
 | `AGENT_READY_SCAN_TIMEOUT_MS` | No | `60000` | How long `scan_site` polls before returning a `running` placeholder. |
 | `AGENT_READY_GET_TIMEOUT_MS` | No | `5000` | Timeout for `get_scan` and per-poll fetches. |
@@ -74,8 +74,8 @@ claude mcp add agent-ready \
 
 | Tool | Inputs | Returns |
 |---|---|---|
-| `scan_site` | `url` (string, required), `pageLimit` (number, optional, max 2000 — capped by your plan) | Scan object: Vercel score 0–100, llms.txt sub-score 0–100, per-check findings with `howToFix` strings. Returns `{ id, status: "running" }` placeholder if the scan exceeds the poll deadline. |
-| `get_scan` | `id` (string, scan id from a prior `scan_site` call) | Same scan object as `scan_site`, or `not_found` if the id is unknown or doesn't belong to the authenticated user. |
+| `scan_site` | `url` (string, required), `pageLimit` (number, optional, max 2000 — capped by your plan; fixed at 25 keyless) | Scan object: Vercel score 0–100, llms.txt sub-score 0–100, per-check findings with `howToFix` strings. Keyless runs use the anonymous free tier (3 scans/30 days per IP) and return synchronously; with a Pro key, returns `{ id, status: "running" }` placeholder if the scan exceeds the poll deadline. |
+| `get_scan` | `id` (string, scan id from a prior `scan_site` call) | Same scan object as `scan_site`, or `not_found` if the id is unknown or doesn't belong to the authenticated user. Pro key required. |
 | `ask` | `q` (string, required), `itemType` (optional corpus filter), `mode` (optional, `list` or `summarize`) | NLWeb `/ask` over Agent Ready's methodology, checks, and specs. Public — no API key required. Schema.org-typed result objects. |
 | `validate_structured_data` | exactly one of `url` (string) or `jsonld` (string) | D-series structured-data result: `mode`, `url`, per-check findings, and a `summary` verdict. Public — no API key required. Validates schema lint + agent-coherence the first-party validators don't. |
 

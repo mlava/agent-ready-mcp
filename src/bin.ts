@@ -7,8 +7,9 @@ async function main(): Promise<void> {
 
   if (!config.apiKey) {
     process.stderr.write(
-      "agent-ready-mcp started without AGENT_READY_API_KEY — tools will return a configuration message until a key is set. " +
-        "Issue a Pro API key at https://agent-ready.dev/dashboard/api-keys.\n",
+      "agent-ready-mcp started without AGENT_READY_API_KEY — scan_site runs on the anonymous free tier " +
+        "(3 scans per 30 days per IP, 25-page depth); get_scan needs a Pro key. " +
+        "Issue one at https://agent-ready.dev/dashboard/api-keys for deeper scans, history, and monitoring.\n",
     );
   }
 
