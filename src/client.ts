@@ -115,6 +115,69 @@ export interface ScanRequestBody {
   pageLimit?: number;
 }
 
+// POST /api/scan is the public web-scan path: anonymous, IP-quota'd (3 scans
+// per 30 days), 25-page depth, and synchronous — the 201 JSON body carries the
+// finished scan as `{ scan, shareUrl }`. Keyless scan_site falls back to it so
+// the tool works with zero configuration. Unlike the v1 routes, errors here
+// are `{ error: string }`, with `resetAt` on the 429.
+export async function postAnonScan(
+  config: Config,
+  url: string,
+): Promise<unknown> {
+  const path = "/api/scan";
+  let res: Response;
+  try {
+    res = await fetch(`${config.baseUrl}${path}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ url }),
+      signal: AbortSignal.timeout(config.scanTimeoutMs),
+    });
+  } catch (err) {
+    if (err instanceof Error && err.name === "TimeoutError") {
+      throw new ApiError(
+        "timeout",
+        `Request to ${path} timed out after ${config.scanTimeoutMs}ms.`,
+      );
+    }
+    const message = err instanceof Error ? err.message : String(err);
+    throw new ApiError("network_error", `Network error calling ${path}: ${message}`);
+  }
+
+  const text = await res.text();
+  let payload: unknown = null;
+  if (text.length > 0) {
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      // Non-JSON body — surfaced via the error path below.
+    }
+  }
+
+  if (!res.ok) {
+    const body =
+      payload && typeof payload === "object"
+        ? (payload as { error?: unknown; resetAt?: unknown })
+        : null;
+    let message =
+      typeof body?.error === "string" && body.error
+        ? body.error
+        : text || `HTTP ${res.status} from ${path}`;
+    if (res.status === 429) {
+      if (typeof body?.resetAt === "string") {
+        message += ` Quota resets ${body.resetAt.slice(0, 10)}.`;
+      }
+      throw new ApiError("quota_exhausted", message, res.status);
+    }
+    throw new ApiError(`http_${res.status}`, message, res.status);
+  }
+
+  return payload;
+}
+
 export async function postScan(config: Config, body: ScanRequestBody): Promise<unknown> {
   return call(config, {
     method: "POST",

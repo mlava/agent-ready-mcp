@@ -20,7 +20,7 @@ import {
 
 const SERVER_INFO = {
   name: "agent-ready",
-  version: "0.5.4",
+  version: "0.6.0",
 } as const;
 
 export function createMcpServer(config: Config): McpServer {
@@ -42,7 +42,7 @@ export function createMcpServer(config: Config): McpServer {
     {
       title: "Scan a site for AI agent readability",
       description:
-        "Runs the agent-ready.dev scanner against a URL and returns structured results: Vercel score, llmstxt.org score, and per-check findings with remediation hints. Scans may take up to ~60s; if the local poll deadline elapses, the tool returns the scan id and asks you to poll with get_scan.",
+        "Runs the agent-ready.dev scanner against a URL and returns structured results: Vercel score, llmstxt.org score, and per-check findings with remediation hints. Works without an API key on the anonymous free tier (3 scans/30 days per IP, 25-page depth, synchronous). With a Pro AGENT_READY_API_KEY it scans deeper (up to 250 pages) and may take up to ~60s; if the local poll deadline elapses, the tool returns the scan id and asks you to poll with get_scan.",
       inputSchema: scanSiteInputShape,
       outputSchema: scanOutputShape,
       annotations: READ_ONLY_OPEN_WORLD,
@@ -61,7 +61,7 @@ export function createMcpServer(config: Config): McpServer {
     {
       title: "Get a previous scan by id",
       description:
-        "Fetches a completed or in-progress scan by its id. Only scans owned by the authenticated API key's user are returned.",
+        "Fetches a completed or in-progress scan by its id. Requires a Pro API key — scan history is account-scoped. (Anonymous scan_site calls return their result inline, so keyless use never needs this tool.)",
       inputSchema: getScanInputShape,
       outputSchema: scanOutputShape,
       annotations: READ_ONLY_OPEN_WORLD,
