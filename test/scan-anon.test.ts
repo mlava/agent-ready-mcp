@@ -60,6 +60,7 @@ describe("scanSite without an API key", () => {
     expect(url).toBe("https://agent-ready.dev/api/scan");
     const headers = (init as RequestInit).headers as Record<string, string>;
     expect(headers.Authorization).toBeUndefined();
+    expect(headers["X-Agent-Ready-Client"]).toBe("mcp-npm");
     expect(JSON.parse((init as RequestInit).body as string)).toEqual({
       url: "https://example.com",
     });
