@@ -132,6 +132,11 @@ export async function postAnonScan(
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
+        // Funnel attribution: /api/scan is shared with the web app, so without
+        // this header keyless npm-MCP scans are recorded as source=`web`. The
+        // server tags them `mcp-npm` (distinct from `mcp`, the hosted keyed
+        // endpoint). Read only on /api/scan; ignored elsewhere.
+        "X-Agent-Ready-Client": "mcp-npm",
       },
       body: JSON.stringify({ url }),
       signal: AbortSignal.timeout(config.scanTimeoutMs),
