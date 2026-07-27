@@ -46,6 +46,10 @@ export const scanOutputShape = {
   url: z.string().optional(),
   pollUrl: z.string().optional(),
   message: z.string().optional(),
+  // Keyless scans only: a link that attaches this anonymous scan to an Agent
+  // Ready account. Carries an ownership claim, so it is the one URL a host
+  // should surface verbatim rather than rebuilding from shareToken.
+  saveUrl: z.string().optional(),
 } as const;
 
 // `validate_structured_data`: the D-series result from
