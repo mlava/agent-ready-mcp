@@ -72,6 +72,67 @@ describe("scanSite without an API key", () => {
     expect(String(structured.message)).toContain("https://agent-ready.dev/pricing");
   });
 
+  it("surfaces the server's claim link so the scan can reach an account", async () => {
+    const saveUrl =
+      "https://agent-ready.dev/scan/anon1?claim=sig&utm_source=mcp_npm_cta&utm_medium=mcp";
+    fetchMock.mockResolvedValue(
+      jsonResponse(
+        { scan: COMPLETED_SCAN, shareUrl: "/scan/anon1", saveUrl },
+        201,
+      ),
+    );
+
+    const structured = (await scanSite(ANON_CONFIG, {
+      url: "https://example.com",
+    })).structuredContent!;
+
+    // Both the structured field (for hosts that read it) and the message (for
+    // models that only read prose) — this tool has no UI of its own.
+    expect(structured.saveUrl).toBe(saveUrl);
+    expect(String(structured.message)).toContain(saveUrl);
+    expect(String(structured.message)).toContain("free Agent Ready account");
+  });
+
+  it("does not sell Pro features as free-account benefits", async () => {
+    // Score history and monitoring are Pro-gated server-side. The tier note
+    // may name them as Pro features; the save offer must not claim them.
+    fetchMock.mockResolvedValue(
+      jsonResponse(
+        {
+          scan: COMPLETED_SCAN,
+          shareUrl: "/scan/anon1",
+          saveUrl: "https://agent-ready.dev/scan/anon1?claim=sig",
+        },
+        201,
+      ),
+    );
+
+    const message = String(
+      (await scanSite(ANON_CONFIG, { url: "https://example.com" }))
+        .structuredContent!.message,
+    );
+    const offer = message.slice(message.indexOf("To keep this scan"));
+    expect(offer).toContain("stays in your dashboard");
+    expect(offer).not.toMatch(/score history/i);
+    expect(offer).not.toMatch(/monitoring/i);
+  });
+
+  it("omits the save offer when the server issues no claim link", async () => {
+    // No CLAIM_SECRET server-side means no redeemable link; the tool must not
+    // invent one from shareToken.
+    fetchMock.mockResolvedValue(
+      jsonResponse({ scan: COMPLETED_SCAN, shareUrl: "/scan/anon1" }, 201),
+    );
+
+    const structured = (await scanSite(ANON_CONFIG, {
+      url: "https://example.com",
+    })).structuredContent!;
+
+    expect(structured.saveUrl).toBeUndefined();
+    expect(String(structured.message)).not.toContain("To keep this scan");
+    expect(String(structured.message)).toContain("anonymous free tier");
+  });
+
   it("maps quota exhaustion to a ToolError carrying the reset date and Pro hint", async () => {
     fetchMock.mockResolvedValue(
       jsonResponse(

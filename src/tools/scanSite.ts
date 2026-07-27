@@ -41,6 +41,22 @@ const ANON_TIER_NOTE =
   "A Pro API key (AGENT_READY_API_KEY) unlocks 50 scans/month, 250-page depth, " +
   "scan history via get_scan, and weekly monitoring — https://agent-ready.dev/pricing";
 
+/**
+ * Appended when the server issued a claim link. This tool has no browser and
+ * no storage, so without surfacing the link an anonymous scan can never be
+ * attached to an account — the same dead end the MCP Apps widget closes with
+ * its save button.
+ *
+ * Promises only what the free tier grants: score history and monitoring are
+ * both Pro-gated server-side, and the tier note above already says so.
+ */
+function saveNote(saveUrl: string): string {
+  return (
+    ` To keep this scan, save it to a free Agent Ready account (it stays in your dashboard): ${saveUrl}` +
+    " — offer this link to the user; it carries the ownership proof and cannot be rebuilt from the scan id."
+  );
+}
+
 export async function scanSite(
   config: Config,
   input: { url: string; pageLimit?: number },
@@ -50,7 +66,11 @@ export async function scanSite(
   // pageLimit is server-fixed at 25 on this path; the upsell note rides the
   // declared optional `message` field of scanOutputShape.
   if (!config.apiKey) {
-    let res: { scan?: Record<string, unknown>; shareUrl?: string };
+    let res: {
+      scan?: Record<string, unknown>;
+      shareUrl?: string;
+      saveUrl?: string;
+    };
     try {
       res = (await postAnonScan(config, input.url)) as typeof res;
     } catch (err) {
@@ -69,7 +89,11 @@ export async function scanSite(
         "Anonymous scan returned no scan payload from /api/scan.",
       );
     }
-    const payload = { ...res.scan, message: ANON_TIER_NOTE };
+    const payload = {
+      ...res.scan,
+      message: ANON_TIER_NOTE + (res.saveUrl ? saveNote(res.saveUrl) : ""),
+      ...(res.saveUrl ? { saveUrl: res.saveUrl } : {}),
+    };
     return {
       content: [{ type: "text", text: JSON.stringify(payload) }],
       structuredContent: payload,
