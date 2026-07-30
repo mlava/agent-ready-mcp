@@ -33,7 +33,11 @@ The llmstxt.org spec treats some properties as foundational and others as option
 
 ## How are JavaScript-rendered pages handled?
 
-P23 detects pages where the static HTML response lacks data that only appears after client-side rendering — missing H1, empty body text, JSON-LD that injects after hydration. When P23 fires, the runner marks dependent checks (P10, P11, P12, P14) as \`unreliable\` and the scorer excludes them from both numerator and denominator. Without this, a single SPA architecture choice would compound into a 4-point score drop across unrelated checks.
+P23 detects pages where the static HTML response lacks data that only appears after client-side rendering — missing H1, empty body text, JSON-LD that injects after hydration. When P23 fires, the runner marks the dependent per-page checks (P12, P13, P14, P21) as \`unreliable\` and the scorer excludes them from both numerator and denominator. Without this, a single SPA architecture choice would compound into a multi-check score drop.
+
+**Only what exists is scored.** Most A-checks are conditional — "if the page has images, they need alt text" — so on a page with no images, no tables and no media there is nothing to grade. Those results are marked \`notApplicable\` and excluded from both numerator and denominator. Scoring them as passes rewarded a site for what it lacked. Checks that state a prohibition (no positive tabindex, no timed meta refresh) or a document-level requirement (a title, a language, a main landmark) always count — for those, absence is a real verdict.
+
+The same gate applies to the accessibility sub-score. Most A-series checks count elements and treat "found none" as a pass; on a client-rendered page the static DOM is a skeleton, so "found none" means "could not look". When P23 fails those checks are marked \`unreliable\` and dropped from the score; if every one is, the score is \`null\` rather than 0. The checks that read \`<head>\` or \`<html>\` (A9 viewport, A10 title, A13 lang, A17 meta refresh) stay trustworthy, because a JS-only shell still serves them.
 
 ## Where is the source for each check?
 
@@ -143,7 +147,7 @@ Discover-then-validate: when the relevant well-known endpoint returns 404, the c
 | C20 | AP2 payment protocol support |
 | C21 | ACP profile (/.well-known/acp.json) |
 
-## Accessibility checks (9)
+## Accessibility checks (23)
 
 Run over the homepage DOM (v1). WCAG-grounded accessibility-tree signals — image text alternatives, form labels, control names — plus a static layout-stability (CLS) proxy. Scored into a separate \`accessibilityScore\`, a distinct suite from the 69 checks above: accessibility is WCAG, not the Vercel Agent Readability Spec, so it never moves the Vercel score.
 
@@ -158,11 +162,24 @@ Run over the homepage DOM (v1). WCAG-grounded accessibility-tree signals — ima
 | A7 | Heading hierarchy is well-formed |
 | A8 | No positive tabindex |
 | A9 | Pinch-zoom is not disabled |
-`;
+| A10 | Page has a title |
+| A11 | Accessible name contains the visible label |
+| A12 | Content is reachable past the chrome |
+| A13 | Language tag is valid |
+| A14 | Hidden elements are not focusable |
+| A15 | Interactive controls are not nested |
+| A16 | Headings are not empty |
+| A17 | No timed meta refresh |
+| A18 | Autocomplete tokens are valid |
+| A19 | Tables declare their headers |
+| A20 | SVG images have a text alternative |
+| A21 | Media declares a captions track |
+| A22 | List structure is well-formed |
+| A23 | ARIA roles and attributes are valid |`;
 
 export const LLMS_TXT = `# Agent Ready
 
-> Agent Ready is a free tool that scores any website against the Vercel Agent Readability Spec, the llmstxt.org specification, and agent-protocol specs (MCP, A2A, agents.json). It runs 69 checks — plus a separate accessibility sub-score from 9 WCAG 2.2 / layout-stability checks — and provides actionable fix guidance for every failing check.
+> Agent Ready is a free tool that scores any website against the Vercel Agent Readability Spec, the llmstxt.org specification, and agent-protocol specs (MCP, A2A, agents.json). It runs 69 checks — plus a separate accessibility sub-score from 23 WCAG 2.2 / layout-stability checks — and provides actionable fix guidance for every failing check.
 
 This resource mirrors agent-ready.dev's own /llms.txt so MCP clients can introspect the same surface that ChatGPT, Perplexity, and other AI agents see when discovering Agent Ready as a tool.
 
@@ -206,7 +223,7 @@ Agent Ready's checks map to the specifications below. Each entry links to the ca
 
 ## Agent protocols
 
-- **MCP Server Cards (SEP-1649)** — The Model Context Protocol discovery card at /.well-known/mcp.json — its presence (C1) and required fields (C2). Canonical: <https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1649> Checks: C1, C2.
+- **MCP Server Cards (SEP-2127)** — The Model Context Protocol discovery card at /.well-known/mcp.json — its presence (C1) and required fields (C2). SEP-2127 (a server.json subset) superseded the earlier SEP-1649 proposal. Canonical: <https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2127> Checks: C1, C2.
 - **OAuth Protected Resource Metadata (RFC 9728)** — Protected-resource metadata an MCP server advertises so agents can locate its authorization server. Canonical: <https://datatracker.ietf.org/doc/html/rfc9728> Checks: C3.
 - **A2A Protocol — Agent Cards** — The agent card at /.well-known/agent-card.json that lets agents discover and call other agents — existence with correct Content-Type (C4) and required fields (C5). Canonical: <https://a2a-protocol.org/v1.0.0/specification> Checks: C4, C5.
 - **Wildcard agents.json** _(pre-standard)_ — An OpenAPI extension declaring which existing REST endpoints agents should call. Pre-standard (v0.1.0). Canonical: <https://github.com/wild-card-ai/agents-json> Checks: C6.
@@ -232,5 +249,4 @@ Agent Ready's checks map to the specifications below. Each entry links to the ca
 
 ## Accessibility
 
-- **WCAG 2.2 + layout stability** — The accessibility tree — image text alternatives, form labels, control names, resolved ARIA references, named iframes, a clean heading outline — is what assistive tech and AI agents parse to act on a page; explicit media dimensions and enabled zoom keep it stable and usable (with a static CLS proxy). Scored as a separate accessibilityScore, not part of the Vercel score. Canonical: <https://www.w3.org/TR/WCAG22/> Checks: A1–A9.
-`;
+- **WCAG 2.2 + layout stability** — The accessibility tree — image text alternatives, form labels, control names, resolved ARIA references, named iframes, a page title, a valid language tag, a main landmark, accessible names that match their visible text, valid ARIA, well-formed lists and tables, and autofill tokens an agent can act on — is what assistive tech and AI agents parse to act on a page; explicit media dimensions and enabled zoom keep it stable and usable (with a static CLS proxy). Scored as a separate accessibilityScore, not part of the Vercel score. Canonical: <https://www.w3.org/TR/WCAG22/> Checks: A1–A23.`;
