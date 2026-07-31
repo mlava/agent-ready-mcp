@@ -20,7 +20,7 @@ import {
 
 const SERVER_INFO = {
   name: "agent-ready",
-  version: "0.7.0",
+  version: "0.7.2",
 } as const;
 
 export function createMcpServer(config: Config): McpServer {
