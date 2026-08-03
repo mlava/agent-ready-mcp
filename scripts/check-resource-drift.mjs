@@ -64,7 +64,9 @@ async function readLiveResources() {
 }
 
 // Trailing-whitespace / final-newline differences are not meaningful drift.
-const normalize = (s) => s.replace(/[ \t]+$/gm, "").replace(/\n+$/, "\n");
+// \n* (not \n+) so a snapshot with no final newline compares equal to a live
+// body that ends with one.
+const normalize = (s) => s.replace(/[ \t]+$/gm, "").replace(/\n*$/, "\n");
 
 async function main() {
   const [local, live] = await Promise.all([
