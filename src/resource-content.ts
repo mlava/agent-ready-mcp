@@ -6,7 +6,7 @@
 
 export const METHODOLOGY_MD = `# How Agent Ready scores a site
 
-> 69 checks across four categories, mapped to the Vercel Agent Readability Spec and the llmstxt.org standard. Every check is open and reproducible.
+> 70 checks across four categories, mapped to the Vercel Agent Readability Spec and the llmstxt.org standard. Every check is open and reproducible.
 
 ## What does Agent Ready measure?
 
@@ -48,7 +48,7 @@ Full guide: <https://agent-ready.dev/methodology>
 
 export const CHECKS_MD = `# Agent Ready check registry
 
-> 69 checks total across four categories. IDs are stable and referenced in every scan result's \`details\` array. Each check is implemented as a single function in \`src/lib/checks/{category}/{id}-{slug}.ts\` in the agent-ready repository.
+> 70 checks total across four categories. IDs are stable and referenced in every scan result's \`details\` array. Each check is implemented as a single function in \`src/lib/checks/{category}/{id}-{slug}.ts\` in the agent-ready repository.
 
 ## Site checks (15)
 
@@ -119,7 +119,7 @@ Run when the site has an \`llms.txt\` file. Validate against the [llmstxt.org](h
 | L9 | Content-Type: text/plain |
 | L10 | llms-full.txt available |
 
-## Protocol checks (21)
+## Protocol checks (22)
 
 Discover-then-validate: when the relevant well-known endpoint returns 404, the check drops rather than failing. A marketing site doesn't score itself against agent manifests it has no reason to ship.
 
@@ -146,10 +146,11 @@ Discover-then-validate: when the relevant well-known endpoint returns 404, the c
 | C19 | MPP challenge params |
 | C20 | AP2 payment protocol support |
 | C21 | ACP profile (/.well-known/acp.json) |
+| C22 | Declared endpoints crawlable |
 
 ## Accessibility checks (23)
 
-Run over the homepage DOM (v1). WCAG-grounded accessibility-tree signals — image text alternatives, form labels, control names — plus a static layout-stability (CLS) proxy. Scored into a separate \`accessibilityScore\`, a distinct suite from the 69 checks above: accessibility is WCAG, not the Vercel Agent Readability Spec, so it never moves the Vercel score.
+Run over the homepage DOM (v1). WCAG-grounded accessibility-tree signals — image text alternatives, form labels, control names — plus a static layout-stability (CLS) proxy. Scored into a separate \`accessibilityScore\`, a distinct suite from the 70 checks above: accessibility is WCAG, not the Vercel Agent Readability Spec, so it never moves the Vercel score.
 
 | ID | Check |
 |---|---|
@@ -179,7 +180,7 @@ Run over the homepage DOM (v1). WCAG-grounded accessibility-tree signals — ima
 
 export const LLMS_TXT = `# Agent Ready
 
-> Agent Ready is a free tool that scores any website against the Vercel Agent Readability Spec, the llmstxt.org specification, and agent-protocol specs (MCP, A2A, agents.json). It runs 69 checks — plus a separate accessibility sub-score from 23 WCAG 2.2 / layout-stability checks — and provides actionable fix guidance for every failing check.
+> Agent Ready is a free tool that scores any website against the Vercel Agent Readability Spec, the llmstxt.org specification, and agent-protocol specs (MCP, A2A, agents.json). It runs 70 checks — plus a separate accessibility sub-score from 23 WCAG 2.2 / layout-stability checks — and provides actionable fix guidance for every failing check.
 
 This resource mirrors agent-ready.dev's own /llms.txt so MCP clients can introspect the same surface that ChatGPT, Perplexity, and other AI agents see when discovering Agent Ready as a tool.
 
@@ -245,6 +246,7 @@ Agent Ready's checks map to the specifications below. Each entry links to the ca
 - **Web Bot Auth** _(pre-standard)_ — An HTTP message-signatures directory at /.well-known/http-message-signatures-directory letting well-behaved bots prove their identity. IETF draft. Canonical: <https://datatracker.ietf.org/doc/html/draft-meunier-web-bot-auth-architecture-05> Checks: C14.
 - **Agent Skills Discovery** _(pre-standard)_ — A /.well-known/agent-skills/index.json manifest advertising installable agent skills. Pre-standard (Cloudflare RFC v0.2.0). Canonical: <https://github.com/cloudflare/agent-skills-discovery-rfc/blob/main/README.md> Checks: C15.
 - **Content parity (anti-cloaking)** _(behavioural)_ — Not a published spec — a behavioural check comparing the AI-bot response to the baseline to detect cloaking (serving agents different content than humans). Canonical: _none published_ Checks: C16.
+- **Endpoint reachability (RFC 9309)** — Robots Exclusion Protocol rules applied to the endpoints a site's own manifests advertise. Publishing a perfect server card for a path your robots.txt forbids leaves agents unable to connect — every other check verifies the manifest or the endpoint, never that the two agree. Canonical: <https://www.rfc-editor.org/info/rfc9309> Checks: C22.
 - **Agent-driven UI (A2UI)** _(pre-standard)_ — MCP-Apps / OpenAI Apps SDK UI surfaces declared on an MCP Server Card, letting agents render interactive widgets inline. Emerging. Canonical: <https://modelcontextprotocol.io> Checks: C17.
 
 ## Accessibility
