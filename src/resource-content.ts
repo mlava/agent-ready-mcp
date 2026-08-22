@@ -220,7 +220,7 @@ Agent Ready's checks map to the specifications below. Each entry links to the ca
 ## Readability
 
 - **Vercel Agent Readability Spec** — The core spec for exposing a site to AI agents — discovery files, structured data, clean HTML, and markdown mirrors. Drives most site (S) and every page (P) check. Canonical: <https://vercel.com/kb/guide/agent-readability-spec> Checks: S5–S15, P1–P23.
-- **llmstxt.org** — The /llms.txt curated-context file (and optional llms-full.txt companion). Structural checks carry 3× weight in the llms.txt sub-score. Canonical: <https://llmstxt.org> Checks: S1–S4, L1–L10.
+- **llmstxt.org** — The /llms.txt curated-context file (and optional llms-full.txt companion), v2 as of August 2026 — adding discovery link relations and a second markdown-twin URL form. Structural checks carry 3× weight in the llms.txt sub-score. Canonical: <https://llmstxt.org> Checks: S1–S4, L1–L10.
 
 ## Agent protocols
 
