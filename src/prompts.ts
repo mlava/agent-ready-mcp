@@ -102,7 +102,7 @@ Group fixes into three buckets:
 - **Next** — medium-effort fixes (a few hours each).
 - **Later** — structural changes (days of work).
 
-For each fix include: the check id (e.g. P11, S15, L9), a one-sentence description, the concrete code/config change to make, and the expected impact ("unlocks 1 check" / "unlocks all 23 per-page checks" / etc.).
+For each fix include: the check id (e.g. P11, S15, L9), a one-sentence description, the concrete code/config change to make, and the expected impact ("unlocks 1 check" / "unlocks all 24 per-page checks" / etc.).
 
 Skip checks that already pass.`,
           },

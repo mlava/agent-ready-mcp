@@ -6,7 +6,7 @@
 
 export const METHODOLOGY_MD = `# How Agent Ready scores a site
 
-> 70 checks across four categories, mapped to the Vercel Agent Readability Spec and the llmstxt.org standard. Every check is open and reproducible.
+> 71 checks across four categories, mapped to the Vercel Agent Readability Spec and the llmstxt.org standard. Every check is open and reproducible.
 
 ## What does Agent Ready measure?
 
@@ -48,7 +48,7 @@ Full guide: <https://agent-ready.dev/methodology>
 
 export const CHECKS_MD = `# Agent Ready check registry
 
-> 70 checks total across four categories. IDs are stable and referenced in every scan result's \`details\` array. Each check is implemented as a single function in \`src/lib/checks/{category}/{id}-{slug}.ts\` in the agent-ready repository.
+> 71 checks total across four categories. IDs are stable and referenced in every scan result's \`details\` array. Each check is implemented as a single function in \`src/lib/checks/{category}/{id}-{slug}.ts\` in the agent-ready repository.
 
 ## Site checks (15)
 
@@ -72,7 +72,7 @@ Run once per scan against the root URL. Cover discovery files (\`llms.txt\`, \`r
 | S14 | HTTPS |
 | S15 | Root OpenAPI spec |
 
-## Page checks (23)
+## Page checks (24)
 
 Run against every URL fetched in the scan. Cover HTTP semantics, metadata, JSON-LD, markdown mirrors, content negotiation, code-block language tags, and JS-rendering dependency.
 
@@ -101,6 +101,7 @@ Run against every URL fetched in the scan. Cover HTTP semantics, metadata, JSON-
 | P21 | Code block language tags |
 | P22 | API schema link |
 | P23 | JS rendering dependency |
+| P24 | llms.txt discovery link |
 
 ## llms.txt checks (10)
 
@@ -150,7 +151,7 @@ Discover-then-validate: when the relevant well-known endpoint returns 404, the c
 
 ## Accessibility checks (23)
 
-Run over the homepage DOM (v1). WCAG-grounded accessibility-tree signals — image text alternatives, form labels, control names — plus a static layout-stability (CLS) proxy. Scored into a separate \`accessibilityScore\`, a distinct suite from the 70 checks above: accessibility is WCAG, not the Vercel Agent Readability Spec, so it never moves the Vercel score.
+Run over the homepage DOM (v1). WCAG-grounded accessibility-tree signals — image text alternatives, form labels, control names — plus a static layout-stability (CLS) proxy. Scored into a separate \`accessibilityScore\`, a distinct suite from the 71 checks above: accessibility is WCAG, not the Vercel Agent Readability Spec, so it never moves the Vercel score.
 
 | ID | Check |
 |---|---|
@@ -176,11 +177,12 @@ Run over the homepage DOM (v1). WCAG-grounded accessibility-tree signals — ima
 | A20 | SVG images have a text alternative |
 | A21 | Media declares a captions track |
 | A22 | List structure is well-formed |
-| A23 | ARIA roles and attributes are valid |`;
+| A23 | ARIA roles and attributes are valid |
+`;
 
 export const LLMS_TXT = `# Agent Ready
 
-> Agent Ready is a free tool that scores any website against the Vercel Agent Readability Spec, the llmstxt.org specification, and agent-protocol specs (MCP, A2A, agents.json). It runs 70 checks — plus a separate accessibility sub-score from 23 WCAG 2.2 / layout-stability checks — and provides actionable fix guidance for every failing check.
+> Agent Ready is a free tool that scores any website against the Vercel Agent Readability Spec, the llmstxt.org specification, and agent-protocol specs (MCP, A2A, agents.json). It runs 71 checks — plus a separate accessibility sub-score from 23 WCAG 2.2 / layout-stability checks — and provides actionable fix guidance for every failing check.
 
 This resource mirrors agent-ready.dev's own /llms.txt so MCP clients can introspect the same surface that ChatGPT, Perplexity, and other AI agents see when discovering Agent Ready as a tool.
 
@@ -208,11 +210,6 @@ This resource mirrors agent-ready.dev's own /llms.txt so MCP clients can introsp
 - Wildcard agents.json: <https://github.com/wild-card-ai/agents-json>
 `;
 
-// Mirror of the main repo's generated \`agent-ready://specs\` resource
-// (src/lib/mcp/resource-content.ts → buildSpecsMarkdown(), sourced from
-// src/lib/specs.ts). This standalone package can't import the main repo's
-// modules, so it holds a frozen snapshot — regenerate and paste when the
-// upstream spec registry changes.
 export const SPECS_MD = `# Specs Agent Ready validates against
 
 Agent Ready's checks map to the specifications below. Each entry links to the canonical document (where one exists) and notes the check IDs that implement it. Entries marked \`pre-standard\` are drafts or emerging conventions; \`behavioural\` entries have no published document. Protocol (C) checks are reported but unscored.
@@ -220,7 +217,7 @@ Agent Ready's checks map to the specifications below. Each entry links to the ca
 ## Readability
 
 - **Vercel Agent Readability Spec** — The core spec for exposing a site to AI agents — discovery files, structured data, clean HTML, and markdown mirrors. Drives most site (S) and every page (P) check. Canonical: <https://vercel.com/kb/guide/agent-readability-spec> Checks: S5–S15, P1–P23.
-- **llmstxt.org** — The /llms.txt curated-context file (and optional llms-full.txt companion), v2 as of August 2026 — adding discovery link relations and a second markdown-twin URL form. Structural checks carry 3× weight in the llms.txt sub-score. Canonical: <https://llmstxt.org> Checks: S1–S4, L1–L10.
+- **llmstxt.org** — The /llms.txt curated-context file (and optional llms-full.txt companion), v2 as of August 2026 — adding discovery link relations and a second markdown-twin URL form. Structural checks carry 3× weight in the llms.txt sub-score; P24 verifies the v2 rel="describedby" discovery link on every page. Canonical: <https://llmstxt.org> Checks: S1–S4, L1–L10, P24.
 
 ## Agent protocols
 
@@ -251,4 +248,5 @@ Agent Ready's checks map to the specifications below. Each entry links to the ca
 
 ## Accessibility
 
-- **WCAG 2.2 + layout stability** — The accessibility tree — image text alternatives, form labels, control names, resolved ARIA references, named iframes, a page title, a valid language tag, a main landmark, accessible names that match their visible text, valid ARIA, well-formed lists and tables, and autofill tokens an agent can act on — is what assistive tech and AI agents parse to act on a page; explicit media dimensions and enabled zoom keep it stable and usable (with a static CLS proxy). Scored as a separate accessibilityScore, not part of the Vercel score. Canonical: <https://www.w3.org/TR/WCAG22/> Checks: A1–A23.`;
+- **WCAG 2.2 + layout stability** — The accessibility tree — image text alternatives, form labels, control names, resolved ARIA references, named iframes, a page title, a valid language tag, a main landmark, accessible names that match their visible text, valid ARIA, well-formed lists and tables, and autofill tokens an agent can act on — is what assistive tech and AI agents parse to act on a page; explicit media dimensions and enabled zoom keep it stable and usable (with a static CLS proxy). Scored as a separate accessibilityScore, not part of the Vercel score. Canonical: <https://www.w3.org/TR/WCAG22/> Checks: A1–A23.
+`;
