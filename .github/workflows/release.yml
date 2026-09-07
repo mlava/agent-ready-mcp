@@ -60,7 +60,8 @@ jobs:
         # Runs BEFORE npm publish on purpose. npm versions are immutable and
         # cannot be reused, so a server.json the registry would reject must fail
         # the release here — not after the package is already public.
-        run: "$RUNNER_TEMP/mcp-publisher" validate server.json
+        run: |
+          "$RUNNER_TEMP/mcp-publisher" validate server.json
 
       - name: Verify the publish tree is untouched
         # The files npm ships (package.json `files`) must be exactly what the
@@ -84,10 +85,12 @@ jobs:
       - name: Authenticate to MCP registry via GitHub OIDC
         # No secret needed — the github-oidc method exchanges the workflow's
         # OIDC token for a registry session bound to io.github.<owner>/...
-        run: "$RUNNER_TEMP/mcp-publisher" login github-oidc
+        run: |
+          "$RUNNER_TEMP/mcp-publisher" login github-oidc
 
       - name: Publish to MCP registry
-        run: "$RUNNER_TEMP/mcp-publisher" publish
+        run: |
+          "$RUNNER_TEMP/mcp-publisher" publish
 
       - name: Attach the .mcpb bundle to the GitHub Release
         # Last, deliberately: a GitHub Release is the public announcement, so it
