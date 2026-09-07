@@ -6,7 +6,7 @@
 
 export const METHODOLOGY_MD = `# How Agent Ready scores a site
 
-> 71 checks across four categories, mapped to the Vercel Agent Readability Spec and the llmstxt.org standard. Every check is open and reproducible.
+> 72 checks across four categories, mapped to the Vercel Agent Readability Spec and the llmstxt.org standard. Every check is open and reproducible.
 
 ## What does Agent Ready measure?
 
@@ -48,7 +48,7 @@ Full guide: <https://agent-ready.dev/methodology>
 
 export const CHECKS_MD = `# Agent Ready check registry
 
-> 71 checks total across four categories. IDs are stable and referenced in every scan result's \`details\` array. Each check is implemented as a single function in \`src/lib/checks/{category}/{id}-{slug}.ts\` in the agent-ready repository.
+> 72 checks total across four categories. IDs are stable and referenced in every scan result's \`details\` array. Each check is implemented as a single function in \`src/lib/checks/{category}/{id}-{slug}.ts\` in the agent-ready repository.
 
 ## Site checks (15)
 
@@ -72,7 +72,7 @@ Run once per scan against the root URL. Cover discovery files (\`llms.txt\`, \`r
 | S14 | HTTPS |
 | S15 | Root OpenAPI spec |
 
-## Page checks (24)
+## Page checks (25)
 
 Run against every URL fetched in the scan. Cover HTTP semantics, metadata, JSON-LD, markdown mirrors, content negotiation, code-block language tags, and JS-rendering dependency.
 
@@ -102,6 +102,7 @@ Run against every URL fetched in the scan. Cover HTTP semantics, metadata, JSON-
 | P22 | API schema link |
 | P23 | JS rendering dependency |
 | P24 | llms.txt discovery link |
+| P25 | AI snippet directives |
 
 ## llms.txt checks (10)
 
@@ -151,7 +152,7 @@ Discover-then-validate: when the relevant well-known endpoint returns 404, the c
 
 ## Accessibility checks (23)
 
-Run over the homepage DOM (v1). WCAG-grounded accessibility-tree signals — image text alternatives, form labels, control names — plus a static layout-stability (CLS) proxy. Scored into a separate \`accessibilityScore\`, a distinct suite from the 71 checks above: accessibility is WCAG, not the Vercel Agent Readability Spec, so it never moves the Vercel score.
+Run over the homepage DOM (v1). WCAG-grounded accessibility-tree signals — image text alternatives, form labels, control names — plus a static layout-stability (CLS) proxy. Scored into a separate \`accessibilityScore\`, a distinct suite from the 72 checks above: accessibility is WCAG, not the Vercel Agent Readability Spec, so it never moves the Vercel score.
 
 | ID | Check |
 |---|---|
@@ -182,7 +183,7 @@ Run over the homepage DOM (v1). WCAG-grounded accessibility-tree signals — ima
 
 export const LLMS_TXT = `# Agent Ready
 
-> Agent Ready is a free tool that scores any website against the Vercel Agent Readability Spec, the llmstxt.org specification, and agent-protocol specs (MCP, A2A, agents.json). It runs 71 checks — plus a separate accessibility sub-score from 23 WCAG 2.2 / layout-stability checks — and provides actionable fix guidance for every failing check.
+> Agent Ready is a free tool that scores any website against the Vercel Agent Readability Spec, the llmstxt.org specification, and agent-protocol specs (MCP, A2A, agents.json). It runs 72 checks — plus a separate accessibility sub-score from 23 WCAG 2.2 / layout-stability checks — and provides actionable fix guidance for every failing check.
 
 This resource mirrors agent-ready.dev's own /llms.txt so MCP clients can introspect the same surface that ChatGPT, Perplexity, and other AI agents see when discovering Agent Ready as a tool.
 
