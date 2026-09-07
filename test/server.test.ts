@@ -118,18 +118,18 @@ describe("createMcpServer", () => {
     const c = result.contents[0]!;
     expect(c.uri).toBe("agent-ready://methodology");
     expect(c.mimeType).toBe("text/markdown");
-    expect(c.text).toContain("71 checks");
+    expect(c.text).toContain("72 checks");
     expect(c.text).toContain("Rating bands");
   });
 
-  it("checks resource enumerates all 71 checks across four tables", async () => {
+  it("checks resource enumerates all 72 checks across four tables", async () => {
     const server = createMcpServer(TEST_CONFIG);
     const resources = (server as unknown as RegisteredResources)
       ._registeredResources;
     const text = (await resources["agent-ready://checks"]!.readCallback())
       .contents[0]!.text;
     expect(text).toContain("Site checks (15)");
-    expect(text).toContain("Page checks (24)");
+    expect(text).toContain("Page checks (25)");
     expect(text).toContain("llms.txt checks (10)");
     expect(text).toContain("Protocol checks (22)");
     expect(text).toContain("| S1 |");
