@@ -46,8 +46,13 @@ jobs:
             --pattern "mcp-publisher_linux_amd64.tar.gz" \
             --output mcp-publisher.tar.gz \
             --clobber
-          tar -xzf mcp-publisher.tar.gz
-          chmod +x mcp-publisher
+          # Extract ONLY the binary, and outside the checkout. The release
+          # tarball also carries the registry project's README.md and LICENSE;
+          # extracting it in the repo root silently replaced ours, and every
+          # npm publish from v0.1.1 to v0.7.6 shipped the MCP Registry README
+          # and licence notice instead of agent-ready-mcp's.
+          tar -xzf mcp-publisher.tar.gz -C "$RUNNER_TEMP" mcp-publisher
+          chmod +x "$RUNNER_TEMP/mcp-publisher"
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -55,7 +60,16 @@ jobs:
         # Runs BEFORE npm publish on purpose. npm versions are immutable and
         # cannot be reused, so a server.json the registry would reject must fail
         # the release here — not after the package is already public.
-        run: ./mcp-publisher validate server.json
+        run: "$RUNNER_TEMP/mcp-publisher" validate server.json
+
+      - name: Verify the publish tree is untouched
+        # The files npm ships (package.json `files`) must be exactly what the
+        # tag committed. Fails if any earlier step wrote over README.md or
+        # LICENSE (see the mcp-publisher note above) or left package.json dirty.
+        run: |
+          git diff --exit-code -- README.md LICENSE package.json skills/
+          head -1 README.md | grep -qx '# agent-ready-mcp'
+          head -1 LICENSE | grep -qx 'MIT License'
 
       - name: Publish to npm
         # Authenticates via npm Trusted Publishing: the package on npmjs.com
@@ -70,10 +84,10 @@ jobs:
       - name: Authenticate to MCP registry via GitHub OIDC
         # No secret needed — the github-oidc method exchanges the workflow's
         # OIDC token for a registry session bound to io.github.<owner>/...
-        run: ./mcp-publisher login github-oidc
+        run: "$RUNNER_TEMP/mcp-publisher" login github-oidc
 
       - name: Publish to MCP registry
-        run: ./mcp-publisher publish
+        run: "$RUNNER_TEMP/mcp-publisher" publish
 
       - name: Attach the .mcpb bundle to the GitHub Release
         # Last, deliberately: a GitHub Release is the public announcement, so it
