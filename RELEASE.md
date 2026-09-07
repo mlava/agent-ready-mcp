@@ -97,7 +97,7 @@ Node 20, installs with `npm ci`, then runs `npm run typecheck`, `npm test`, and
 Pushing a `v*` tag triggers `.github/workflows/release.yml`. The workflow:
 
 1. Checks out the tag.
-2. Sets up Node 20 with npm registry publishing configured.
+2. Sets up Node 24 (npm 11.5+, required for npm Trusted Publishing) with npm registry publishing configured.
 3. Runs `npm ci`.
 4. Runs `npm run typecheck`.
 5. Runs `npm test`.
@@ -120,9 +120,13 @@ The workflow owns npm publishing, MCP registry publishing, and `.mcpb` bundle
 upload. Never run `npm publish`, `mcp-publisher publish`, or manual bundle upload
 for a release; doing that races the workflow.
 
-The one repository secret required by the release workflow is `NPM_TOKEN`, an
-npm automation token with publish access for `agent-ready-mcp`. The MCP registry
-publish uses GitHub OIDC and does not use a stored registry secret.
+The release workflow needs no stored secrets. npm publishing uses npm Trusted
+Publishing: the `agent-ready-mcp` package on npmjs.com trusts
+`mlava/agent-ready-mcp` + `release.yml` via GitHub OIDC (package settings →
+Trusted Publisher, with "Allow npm publish" ticked). The MCP registry publish
+likewise uses GitHub OIDC. The old `NPM_TOKEN` secret is unused; a 404 on the
+publish PUT was the symptom of that token expiring (npm granular tokens cap at
+90 days), which is why v0.7.6 moved to OIDC.
 
 ## Manual Tail
 

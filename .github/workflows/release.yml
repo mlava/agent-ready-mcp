@@ -17,7 +17,9 @@ jobs:
 
       - uses: actions/setup-node@v5
         with:
-          node-version: "20"
+          # Node 24 bundles npm 11.5+, the floor for npm Trusted Publishing
+          # (OIDC). Node 20's npm 10.x cannot mint the OIDC-backed session.
+          node-version: "24"
           cache: "npm"
           registry-url: "https://registry.npmjs.org"
 
@@ -56,12 +58,14 @@ jobs:
         run: ./mcp-publisher validate server.json
 
       - name: Publish to npm
-        # --provenance attaches a Sigstore attestation tying the tarball to
-        # this workflow run, this commit, and this tag. Surfaces as the
-        # green "Provenance" badge on npmjs.com.
+        # Authenticates via npm Trusted Publishing: the package on npmjs.com
+        # trusts this repo + this workflow file through GitHub OIDC
+        # (`id-token: write` above), so there is no NPM_TOKEN to rotate. The
+        # v0.7.6 release died on an expired 90-day granular token (npm answers
+        # a bad token with 404 on the PUT, not 401). --provenance attaches a
+        # Sigstore attestation tying the tarball to this workflow run, this
+        # commit, and this tag. Surfaces as the green "Provenance" badge.
         run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Authenticate to MCP registry via GitHub OIDC
         # No secret needed — the github-oidc method exchanges the workflow's
