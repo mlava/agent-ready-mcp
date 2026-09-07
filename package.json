@@ -1,6 +1,6 @@
 {
   "name": "agent-ready-mcp",
-  "version": "0.7.6",
+  "version": "0.7.7",
   "mcpName": "io.github.mlava/agent-ready-mcp",
   "description": "MCP server for Agent Ready: scan any URL for AI agent readability (Vercel Agent Readability Spec, llmstxt.org, MCP/A2A/agents.json and other agent-protocol manifests). 72 checks, each with fix guidance.",
   "license": "MIT",
